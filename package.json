@@ -1,0 +1,20 @@
+{
+  "name": "pebbles-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Multi-environment JavaScript client for pebbles services",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha"
+  },
+  "author": "Bjørge Næss",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~1.14.0"
+  },
+  "dependencies": {
+    "util-extend": "~1.0.1",
+    "request": "~2.27.0",
+    "sinon": "~1.7.3"
+  }
+}
