@@ -36,3 +36,10 @@ Connector.prototype.put = function put(endpoint, params, opts, cb) {
 Connector.prototype.del = function del(endpoint, params, opts, cb) {
   return this.request.apply(this, ['del'].concat(slice.call(arguments)));
 };
+
+Connector.prototype.resource = function(root, options) {
+  var Resource = require("./resource")
+  var extend = require("util-extend");
+  extend(options, {connector: this});
+  return new Resource(root, options)
+};

@@ -22,7 +22,7 @@ util.inherits(NodeClient, HttpClient);
 
 NodeClient.prototype.request = function perform(method, endpoint, params, opts, callback) {
 
-  var requestOpts = extend({}, {
+  var requestOpts = extend(extend({}, defaultRequestOpts), {
     method: method,
     url: this.urlTo(endpoint)
   });
@@ -43,7 +43,6 @@ NodeClient.prototype.request = function perform(method, endpoint, params, opts, 
   }
   if (callback) args.push(callback)
 
-  console.log(requestOpts)
   return request.apply(request, args)
 };
 
