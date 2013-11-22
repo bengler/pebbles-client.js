@@ -8,6 +8,7 @@ function Connector(opts) {
   if (!opts) throw Error("No options given");
   if (!opts.service) throw Error("No service given");
   if (!opts.client) throw Error("No client given");
+  this.resourceOptions = opts.resourceOptions || {}
   this.service = opts.service;
   this.client = opts.client;
 }
@@ -38,9 +39,9 @@ Connector.prototype.del = function del(endpoint, params, opts, cb) {
 };
 
 Connector.prototype.resource = function(root, options) {
-  options || (options = {})
+  options || (options = {});
   var Resource = require("./resource")
   var extend = require("util-extend");
-  extend(options, {connector: this});
-  return new Resource(root, options)
+  options = extend({connector: this}, extend(this.resourceOptions, options))
+  return new Resource(root, options);
 };

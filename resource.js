@@ -36,7 +36,7 @@ Resource.prototype.get = function get(id, params, opts, cb) {
 
 Resource.prototype.post = function post(params, opts, cb) {
   if (this.namespace.one) params[this.namespace.one] = params;
-  return this.request.apply(this, ['post', this.root].concat(slice.call(arguments, 1)));  
+  return this.request.apply(this, ['post', this.root].concat(slice.call(arguments)));
 };
 
 Resource.prototype.del = function del(id, params, opts, cb) {
@@ -45,14 +45,17 @@ Resource.prototype.del = function del(id, params, opts, cb) {
 
 Resource.prototype.put = function put(id, params, opts, cb) {
   if (this.namespace.one) params[this.namespace.one] = params;
-
   return this.request.apply(this, ['put', [this.root, id].join(this._delimiter)].concat(slice.call(arguments, 1)));
 };
 
 Resource.prototype.index = function index(params, opts, cb) {
-  return this.request.apply(this, ['get', this.root].concat(slice.call(arguments, 1)));
+  return this.request.apply(this, ['get', this.root].concat(slice.call(arguments)));
 };
+// Aliases
+Resource.prototype.find = Resource.prototype.index;
+Resource.prototype.all = Resource.prototype.index;
 Resource.prototype.list = Resource.prototype.index;
+Resource.prototype.collection = Resource.prototype.index;
 
 Resource.prototype.save = function request(params, opts, cb) {
   // Todo: need the ability to define an id field on items
@@ -68,21 +71,21 @@ function wrap(cb, ctx) {
       cb(e, body, response)
     }
     return cb(null, unwrapped, response);
-  }  
+  }
 }
 
 Resource.prototype.request = function request(method, path, params, opts, cb) {
-
-  if (typeof params === 'function') {
-    cb = params;
-    params = opts = null
-  }
-  else if (typeof opts === 'function') {
-    cb = opts;
-    opts = null
-  }
   var args = slice.call(arguments);
-  args[args.length-1] = wrap(cb, this);
 
+  var cbIndex = -1;
+  args.some(function(arg, i) {
+    if (typeof arg === 'function') {
+      cbIndex = i;
+      return true;
+    }
+  });
+  if (~cbIndex) {
+    args[cbIndex] = wrap(args[cbIndex], this);
+  }
   this.connector.request.apply(this.connector, args);
 };

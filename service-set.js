@@ -3,6 +3,8 @@ module.exports = ServiceSet;
 var Service = require("./service");
 var Connector = require("./connector");
 
+var extend = require("util-extend")
+
 function ServiceSet(opts) {
   this.client = opts.client;
   this.serviceClasses = opts.serviceClasses || {};
@@ -12,15 +14,29 @@ function ServiceSet(opts) {
   }, this);
 }
 
-ServiceSet.prototype.use = function use(serviceName, version, opts) {
+ServiceSet.prototype.use = function use(serviceName, opts) {
   if (arguments.length == 1 && !(typeof serviceName === 'string')) {
     for (var key in serviceName) {
       this.use(key, serviceName[key]);
     }
     return this;
   }
-  var ServiceClass = this.serviceClasses[serviceName] || Service; 
+  var ServiceClass = this.serviceClasses[serviceName] || Service;
+  
+  var version = opts.version;
+  if (typeof opts !== 'object') {
+    version = opts;
+  }
+
+  if (typeof version === 'undefined' || +version != version) throw new Error("Invalid version of "+serviceName+": "+version);
+
   var service = new ServiceClass(serviceName, version, opts);
-  this[serviceName] = new Connector({client: this.client, service: service});
+
+  var connectorOpts = extend({}, opts);
+  
+  extend(connectorOpts, {client: this.client, service: service});
+
+  this[serviceName] = new Connector(connectorOpts);
+
   return this;
 };
