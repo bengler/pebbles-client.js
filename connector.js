@@ -38,6 +38,7 @@ Connector.prototype.del = function del(endpoint, params, opts, cb) {
 };
 
 Connector.prototype.resource = function(root, options) {
+  options || (options = {})
   var Resource = require("./resource")
   var extend = require("util-extend");
   extend(options, {connector: this});
