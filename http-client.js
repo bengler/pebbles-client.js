@@ -21,7 +21,7 @@ HttpClient.prototype.after = function (fn) {
 
 HttpClient.prototype.urlTo = function urlTo(endpoint) {
   var u = url.parse(this.rootUrl);
-  u.path = endpoint;
+  u.pathname = endpoint;
   return u;
 };
 
