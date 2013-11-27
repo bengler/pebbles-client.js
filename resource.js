@@ -10,9 +10,9 @@ function property(prop) {
 
 function Resource(root, opts) {
   if (!opts) throw Error("No options given");
-  if (!opts.connector) throw Error("No connector given");
+  if (!opts.client) throw Error("No client given");
   this.namespace = opts.namespace || {};
-  this.connector = opts.connector;
+  this.client = opts.client;
   this._delimiter = opts.delimiter || '/';
   this.root = root;
 }
@@ -87,5 +87,5 @@ Resource.prototype.request = function request(method, path, params, opts, cb) {
   if (~cbIndex) {
     args[cbIndex] = wrap(args[cbIndex], this);
   }
-  this.connector.request.apply(this.connector, args);
+  this.client.request.apply(this.client, args);
 };

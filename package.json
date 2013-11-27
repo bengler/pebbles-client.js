@@ -15,6 +15,7 @@
   "dependencies": {
     "util-extend": "~1.0.1",
     "request": "~2.27.0",
-    "sinon": "~1.7.3"
+    "sinon": "~1.7.3",
+    "xhr": "~1.2.3"
   }
 }

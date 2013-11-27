@@ -2,15 +2,15 @@ var util = require("util");
 
 var ServiceSet = require("./service-set");
 
-var Client = require("./http-clients/node");
+var nodeAdapter = require("./adapters/node");
 
 function NodeServiceSet(config) {
-  config.client = new Client(config);
+  config.adapter = nodeAdapter;
   ServiceSet.call(this, config);
 }
 
 util.inherits(NodeServiceSet, ServiceSet);
 
 exports.Service = require("./service");
-exports.Client = Client;
+exports.Client = require("./client");
 exports.ServiceSet = NodeServiceSet;

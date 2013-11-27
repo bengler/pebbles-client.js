@@ -7,6 +7,7 @@ function Service(name, version, opts) {
   this.opts = opts || {};
   this.name = name;
   this.version = version;
+  this.resources = [];
 }
 
 Service.prototype.pathTo = function pathTo(endpoint) {

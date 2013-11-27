@@ -1,10 +1,10 @@
 var util = require("util");
 var extend = require("util-extend");
 var ServiceSet = require("./service-set")
-var Client = require("./http-clients/jquery");
+var Client = require("./adapters/jquery");
 
 var defaultServiceClasses = {
-  checkpoint: require("./pebbles/checkpoint")
+  checkpoint: require("./clients/checkpoint")
 };
 
 function jQueryServiceSet(config) {

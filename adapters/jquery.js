@@ -1,6 +1,5 @@
 var $ = require("jquery")
-var util = require("util");
-var Client = require("../client");
+var Client = require("../http-client");
 
 function methodOverride(method, url, params) {
   params || (params = {})
@@ -14,17 +13,9 @@ function methodOverride(method, url, params) {
   return [method, url, params, headers];
 }
 
-function jQueryClient() {
-  Client.apply(this, arguments)
-}
-
-util.inherits(jQueryClient, Client);
-
-jQueryClient.prototype.request = function (method, url, params) {
+module.exports = function request(method, url, params) {
   this.beforeFns.concat(methodOverride).forEach(function(fn) {
     fn.call(this, method, url, params)
   }, this);
   return $.ajax(url, params);
 };
-
-module.exports = jQueryClient;
