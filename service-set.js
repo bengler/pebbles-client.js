@@ -1,9 +1,11 @@
+"use strict";
+
 module.exports = ServiceSet;
 
 var Service = require("./service");
 var Client = require("./client");
 
-var extend = require("util-extend")
+var extend = require("util-extend");
 
 function ServiceSet(opts) {
   this.rootUrl = opts.rootUrl;
@@ -16,10 +18,12 @@ function ServiceSet(opts) {
 }
 
 ServiceSet.prototype.use = function use(serviceName, opts) {
-  if (arguments.length == 1 && !(typeof serviceName === 'string')) {
+  if (arguments.length === 1 && (typeof serviceName !== 'string')) {
     // Assume object
     for (var key in serviceName) {
-      this.use(key, serviceName[key]);
+      if (serviceName.hasOwnProperty(key)) {
+        this.use(key, serviceName[key]);
+      }
     }
     return this;
   }
@@ -29,7 +33,7 @@ ServiceSet.prototype.use = function use(serviceName, opts) {
     version = opts;
   }
 
-  if (typeof version === 'undefined' || +version != version) throw new Error("Invalid version of "+serviceName+": "+version);
+  if (typeof version === 'undefined' || +version !== version) throw new Error("Invalid version of "+serviceName+": "+version);
 
   var service = new Service(serviceName, version, opts);
 

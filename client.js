@@ -1,3 +1,5 @@
+"use strict";
+
 var slice = [].slice;
 
 module.exports = Client;
@@ -17,8 +19,8 @@ function Client(opts) {
 }
 
 Client.prototype.request = function request(method, endpoint, params, opts, cb) {
-  if (!method) throw Error("No HTTP method specified.");
-  if (!endpoint) throw Error("No endpoint specified.");
+  if (!method) throw new Error("No HTTP method specified.");
+  if (!endpoint) throw new Error("No endpoint specified.");
   return this.adapter.apply(null, [method, this.urlTo(endpoint)].concat(slice.call(arguments, 2)));
 };
 
@@ -46,7 +48,7 @@ Client.prototype.del = function del(endpoint, params, opts, cb) {
 
 Client.prototype.resource = function(root, options) {
   options || (options = {});
-  var Resource = require("./resource")
+  var Resource = require("./resource");
   var extend = require("util-extend");
   options = extend({client: this}, extend(this.resourceOptions, options))
   return new Resource(root, options);

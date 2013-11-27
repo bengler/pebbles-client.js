@@ -1,3 +1,5 @@
+"use strict";
+
 var xhr = require("xhr")
 
 module.exports = function request(method, url, params, opts, callback) {

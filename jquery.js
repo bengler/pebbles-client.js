@@ -1,6 +1,8 @@
+"use strict";
+
 var util = require("util");
 var extend = require("util-extend");
-var ServiceSet = require("./service-set")
+var ServiceSet = require("./service-set");
 var Client = require("./adapters/jquery");
 
 var defaultServiceClasses = {
@@ -8,7 +10,7 @@ var defaultServiceClasses = {
 };
 
 function jQueryServiceSet(config) {
-  config.serviceClasses = extend(defaultServiceClasses, config.serviceClasses || {})
+  config.serviceClasses = extend(defaultServiceClasses, config.serviceClasses || {});
   config.client = new Client(config);
   ServiceSet.call(this, config);
 }

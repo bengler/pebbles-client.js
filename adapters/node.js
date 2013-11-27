@@ -1,3 +1,5 @@
+"use strict";
+
 var _request = require("request");
 var extend = require("util-extend");
 
@@ -19,10 +21,10 @@ module.exports = function request(method, url, params, opts, callback) {
     args.push(params);
   }
   else if (params) {
-    requestOpts.qs = params
+    requestOpts.qs = params;
   }
-  if (callback) args.push(callback)
+  if (callback) args.push(callback);
 
-  console.log(args)
-  return _request.apply(request, args)
+  console.log(args);
+  return _request.apply(request, args);
 };

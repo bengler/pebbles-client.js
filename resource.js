@@ -1,3 +1,5 @@
+"use strict";
+
 var slice = [].slice;
 
 module.exports = Resource;
@@ -5,12 +7,12 @@ module.exports = Resource;
 function property(prop) {
   return function(item) {
     return item[prop];
-  }
+  };
 }
 
 function Resource(root, opts) {
-  if (!opts) throw Error("No options given");
-  if (!opts.client) throw Error("No client given");
+  if (!opts) throw new Error("No options given");
+  if (!opts.client) throw new Error("No client given");
   this.namespace = opts.namespace || {};
   this.client = opts.client;
   this._delimiter = opts.delimiter || '/';
@@ -23,11 +25,11 @@ Resource.prototype.unwrap = function(payload) {
   var hasMany = payload.hasOwnProperty(this.namespace.many);
 
   if (hasOne && hasMany) {
-    throw new Error("Got a response that has both `"+this.namespace.one+"` and `"+this.namespace.many+"`. Don't know which property to use:", payload)
+    throw new Error("Got a response that has both `"+this.namespace.one+"` and `"+this.namespace.many+"`. Don't know which property to use:", payload);
   }
   if (hasOne) return payload[this.namespace.one];
   if (hasMany) return payload[this.namespace.many].map(property(this.namespace.one));
-  throw new Error("This resource is namespaced, but got a response that has neither `"+this.namespace.one+"` or `"+this.namespace.many+"`:", payload)
+  throw new Error("This resource is namespaced, but got a response that has neither `"+this.namespace.one+"` or `"+this.namespace.many+"`:", payload);
 };
 
 Resource.prototype.get = function get(id, params, opts, cb) {
@@ -63,15 +65,16 @@ Resource.prototype.save = function request(params, opts, cb) {
 
 function wrap(cb, ctx) {
   return function(err, response, body) {
+    var unwrapped;
     if (err) return cb(err, response, body);
     try {
-      var unwrapped = ctx.unwrap(body);
+      unwrapped = ctx.unwrap(body);
     }
     catch (e) {
-      cb(e, body, response)
+      cb(e, body, response);
     }
     return cb(null, unwrapped, response);
-  }
+  };
 }
 
 Resource.prototype.request = function request(method, path, params, opts, cb) {
@@ -84,7 +87,7 @@ Resource.prototype.request = function request(method, path, params, opts, cb) {
       return true;
     }
   });
-  if (~cbIndex) {
+  if (cbIndex === -1) {
     args[cbIndex] = wrap(args[cbIndex], this);
   }
   this.client.request.apply(this.client, args);

@@ -1,3 +1,5 @@
+"use strict";
+
 var path = require("path");
 
 module.exports = Service;
@@ -11,5 +13,5 @@ function Service(name, version, opts) {
 }
 
 Service.prototype.pathTo = function pathTo(endpoint) {
-  return path.join("/", "api", this.name, 'v'+this.version, endpoint)
+  return path.join("/", "api", this.name, 'v'+this.version, endpoint);
 };

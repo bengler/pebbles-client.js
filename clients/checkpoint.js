@@ -1,3 +1,5 @@
+"use strict";
+
 var Client = require("../client");
 var util = require("util");
 
