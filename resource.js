@@ -49,10 +49,10 @@ Resource.prototype.index = function index(queryString, opts, cb) {
     method: 'get',
     endpoint: this.root
   };
-  if (typeof arguments[1] === 'object') {
-    options.queryString = arguments[1];
+  if (typeof arguments[0] === 'object' || typeof arguments[0] === 'string') {
+    options.queryString = arguments[0];
   }
-  if (typeof arguments[2] === 'object') {
+  if (typeof arguments[1] === 'object') {
     extend(options, opts);
   }
   this._request.apply(this, withCallback(options, arguments, this.namespace.many ? unwrapCollection(this.namespace) : null));
