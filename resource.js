@@ -5,8 +5,14 @@ var slice = [].slice;
 module.exports = Resource;
 
 function property(prop) {
-  return function(item) {
+  return function (item) {
     return item[prop];
+  };
+}
+
+function unwrapCollection(ns) {
+  return function (items) {
+      return items[ns.many].map(property(ns.one));
   };
 }
 
@@ -18,77 +24,100 @@ function Resource(root, opts) {
   this._delimiter = opts.delimiter || '/';
   this.root = root;
 }
-
-Resource.prototype.unwrap = function(payload) {
-
-  var hasOne = payload.hasOwnProperty(this.namespace.one);
-  var hasMany = payload.hasOwnProperty(this.namespace.many);
-
-  if (hasOne && hasMany) {
-    throw new Error("Got a response that has both `"+this.namespace.one+"` and `"+this.namespace.many+"`. Don't know which property to use:", payload);
+function withCallback(options, args, unwrapper) {
+  var cb = args[args.length - 1];
+  if (typeof cb === 'function') {
+    return [options, function (err, body, response) {
+      cb(err, unwrapper(body), response);
+    }]
   }
-  if (hasOne) return payload[this.namespace.one];
-  if (hasMany) return payload[this.namespace.many].map(property(this.namespace.one));
-  throw new Error("This resource is namespaced, but got a response that has neither `"+this.namespace.one+"` or `"+this.namespace.many+"`:", payload);
+  return [options];
+}
+
+function namespace(object, namespace) {
+  var o = {};
+  o[namespace] = object;
+  return o;
+}
+
+Resource.prototype._request = function index(options, cb) {
+  this.client.request.apply(this.client, arguments)
+}
+
+Resource.prototype.index = function index(queryString, opts, cb) {
+  var options = {
+    method: 'get',
+    endpoint: this.root
+  };
+  if (typeof arguments[1] === 'object') {
+    options.queryString = arguments[1];
+  }
+  if (typeof arguments[2] === 'object') {
+    extend(options, opts);
+  }
+  this._request.apply(this, withCallback(options, arguments, this.namespace.many ? unwrapCollection(this.namespace) : null));
 };
 
-Resource.prototype.get = function get(id, params, opts, cb) {
-  return this.request.apply(this, ['get', [this.root, id].join(this._delimiter)].concat(slice.call(arguments, 1)));
-};
-
-Resource.prototype.post = function post(params, opts, cb) {
-  if (this.namespace.one) params[this.namespace.one] = params;
-  return this.request.apply(this, ['post', this.root].concat(slice.call(arguments)));
-};
-
-Resource.prototype.del = function del(id, params, opts, cb) {
-  return this.request.apply(this, ['del', [this.root, id].join(this._delimiter)].concat(slice.call(arguments, 1)));
-};
-
-Resource.prototype.put = function put(id, params, opts, cb) {
-  if (this.namespace.one) params[this.namespace.one] = params;
-  return this.request.apply(this, ['put', [this.root, id].join(this._delimiter)].concat(slice.call(arguments, 1)));
-};
-
-Resource.prototype.index = function index(params, opts, cb) {
-  return this.request.apply(this, ['get', this.root].concat(slice.call(arguments)));
-};
 // Aliases
 Resource.prototype.find = Resource.prototype.index;
 Resource.prototype.all = Resource.prototype.index;
 Resource.prototype.list = Resource.prototype.index;
 Resource.prototype.collection = Resource.prototype.index;
 
-Resource.prototype.save = function request(params, opts, cb) {
-  // Todo: need the ability to define an id field on items
-};
-
-function wrap(cb, ctx) {
-  return function(err, response, body) {
-    var unwrapped;
-    if (err) return cb(err, response, body);
-    try {
-      unwrapped = ctx.unwrap(body);
-    }
-    catch (e) {
-      cb(e, body, response);
-    }
-    return cb(null, unwrapped, response);
+Resource.prototype.get = function get(id, queryString, opts, callback) {
+  var options = {
+    method: 'get',
+    endpoint: [this.root, id].join(this._delimiter)
   };
-}
-
-Resource.prototype.request = function request(method, path, params, opts, cb) {
-  var args = slice.call(arguments);
-
-  var cbIndex = -1;
-  args.some(function(arg, i) {
-    if (typeof arg === 'function') {
-      cbIndex = i;
-      return true;
-    }
-  });
-  if (cbIndex === -1) {
-    args[cbIndex] = wrap(args[cbIndex], this);
+  if (typeof arguments[1] === 'object') {
+    options.queryString = arguments[1];
   }
-  this.client.request.apply(this.client, args);
+  if (typeof arguments[2] === 'object') {
+    extend(options, opts);
+  }
+  this._request.apply(this, withCallback(options, arguments, this.namespace.one ? property(this.namespace.one) : null));
 };
+
+Resource.prototype.del = function del(id, queryString, opts, callback) {
+  var options = {
+    method: 'delete',
+    endpoint: [this.root, id].join(this._delimiter)
+  };
+  if (typeof arguments[1] === 'object') {
+    options.queryString = arguments[1];
+  }
+  if (typeof arguments[2] === 'object') {
+    extend(options, opts);
+  }
+  return this._request.apply(this, withCallback(options, arguments, this.namespace.one ? property(this.namespace.one) : null));
+};
+
+Resource.prototype.post = function post(body, opts, callback) {
+  var options = {
+    method: 'post',
+    endpoint: this.root,
+    body: this.namespace.one ? namespace(body, this.namespace.one) : body
+  };
+  if (opts && typeof(opts) === 'object') {
+    extend(options, opts);
+  }
+  return this._request.apply(this, withCallback(options, arguments, this.namespace.one ? property(this.namespace.one) : null));
+};
+
+Resource.prototype.create = Resource.prototype.post;
+
+Resource.prototype.put = function put(id, params, opts, cb) {
+  this.namespace.one && (body = body[this.namespace.one]);
+  var options = {
+    method: 'put',
+    endpoint: this.root,
+    body: this.namespace.one ? namespace(body, this.namespace.one) : body
+  };
+  if (opts && isObject(opts)) {
+    extend(options, opts);
+  }
+  this._request.apply(this, withCallback(options, arguments, this.namespace.one ? property(this.namespace.one) : null));
+};
+
+Resource.prototype.save = Resource.prototype.put;
+

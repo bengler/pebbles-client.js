@@ -3,28 +3,23 @@
 var _request = require("request");
 var extend = require("util-extend");
 
-var defaultRequestOpts = {
+var defaultOpts = {
   agent: false,
   json: true
 };
 
-module.exports = function request(method, url, params, opts, callback) {
-
-  var requestOpts = extend(extend({}, defaultRequestOpts), {
-    method: method,
-    url: url
-  });
-
-  var args = [requestOpts];
-  
-  if (typeof params === 'function') {
-    args.push(params);
+function swapBodyAndReq(callback) {
+  return function(err, resp, body) {
+    return callback(err, body, resp);
   }
-  else if (params) {
-    requestOpts.qs = params;
-  }
-  if (callback) args.push(callback);
+}
 
-  console.log(args);
-  return _request.apply(request, args);
+module.exports = function request(options, callback) {
+
+  var requestOpts = extend({}, defaultOpts);
+
+  requestOpts.method = options.method;
+  requestOpts.url = options.url;
+  var args = typeof callback == 'function' ? [requestOpts, swapBodyAndReq(callback)] : [requestOpts];
+  return _request.apply(_request, args);
 };

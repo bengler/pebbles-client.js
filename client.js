@@ -5,8 +5,33 @@ var slice = [].slice;
 module.exports = Client;
 
 var url = require("url");
-var path = require("url");
+var extend = require("util-extend");
 
+function isObject(val) {
+  return typeof val === 'object' && val !== null;
+}
+function isString(val) {
+  return typeof val === 'string'
+}
+
+function normalizeArgs(args, method, secondArg) {
+  var options = { method: method };
+  if (isObject(args[0])) {
+    // (options, [cb])
+    options = args[0];
+  } else {
+    // (endpoint, [queryParams|body], [opts], [cb])
+    options.endpoint = args[0];
+    if (isObject(args[1])) {
+      options[secondArg] = args[1];
+    }
+    if (isObject(args[2])) {
+      extend(options, args[2]);
+    }
+  }
+  var cb = args[args.length - 1];
+  return typeof cb === 'function' ? [options, cb] : [options];
+}
 // A connector is a wrapper arount a service and a client, providing an easy way to do various requests to
 // service endpoints.
 function Client(opts) {
@@ -18,10 +43,17 @@ function Client(opts) {
   this.adapter = opts.adapter;
 }
 
-Client.prototype.request = function request(method, endpoint, params, opts, cb) {
-  if (!method) throw new Error("No HTTP method specified.");
-  if (!endpoint) throw new Error("No endpoint specified.");
-  return this.adapter.apply(null, [method, this.urlTo(endpoint)].concat(slice.call(arguments, 2)));
+Client.prototype.request = function request(options, callback) {
+  if (typeof options === 'string') {
+    options = { endpoint: options }
+  }
+  if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
+  var opts = extend({}, options);
+  opts.url = this.urlTo(options.endpoint);
+  delete opts.endpoint; // Not needed anymore
+
+  // Forward to adapter
+  return this.adapter.apply(this.adapter, [opts].concat(slice.call(arguments, 1)));
 };
 
 Client.prototype.urlTo = function urlTo(endpoint) {
@@ -30,26 +62,25 @@ Client.prototype.urlTo = function urlTo(endpoint) {
   return u.format();
 };
 
-Client.prototype.get = function get(endpoint, params, opts, cb) {
-  return this.request.apply(this, ['get'].concat(slice.call(arguments)));
+Client.prototype.get = function get(endpoint, queryString, opts, cb) {
+  return this.request.apply(this, normalizeArgs(arguments, 'get', 'queryString'));
 };
 
-Client.prototype.post = function post(endpoint, params, opts, cb) {
-  return this.request.apply(this, ['post'].concat(slice.call(arguments)));
+Client.prototype.del = function del(endpoint, queryString, opts, cb) {
+  return this.request.apply(this, normalizeArgs(arguments, 'delete', 'queryString'));
 };
 
-Client.prototype.put = function put(endpoint, params, opts, cb) {
-  return this.request.apply(this, ['put'].concat(slice.call(arguments)));
+Client.prototype.post = function post(endpoint, body, opts, cb) {
+  return this.request.apply(this, normalizeArgs(arguments, 'post', 'body'));
 };
 
-Client.prototype.del = function del(endpoint, params, opts, cb) {
-  return this.request.apply(this, ['del'].concat(slice.call(arguments)));
+Client.prototype.put = function put(endpoint, body, opts, cb) {
+  return this.request.apply(this, normalizeArgs(arguments, 'put', 'body'));
 };
 
 Client.prototype.resource = function(root, options) {
   options || (options = {});
   var Resource = require("./resource");
-  var extend = require("util-extend");
   options = extend({client: this}, extend(this.resourceOptions, options))
   return new Resource(root, options);
 };

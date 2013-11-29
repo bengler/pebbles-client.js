@@ -18,7 +18,7 @@ describe("Client", function () {
     var mockAdapter = sinon.spy()
     var client = new Client({service: new Service("kudu", 1), adapter: mockAdapter});
     client.get("/foo", {foo: "bar"});
-    assert(mockAdapter.calledOnce)    
-    assert.deepEqual(mockAdapter.firstCall.args, ["get", "/api/kudu/v1/foo", {foo: "bar"}])    
+    assert(mockAdapter.calledOnce)
+    assert.deepEqual(mockAdapter.firstCall.args, [{queryString: {foo: "bar"}, method: "get", url: "/api/kudu/v1/foo"}])    
   })
 });
