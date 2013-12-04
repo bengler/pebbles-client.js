@@ -1,6 +1,6 @@
 "use strict";
 
-var util = require("util");
+var inherits = require("inherits");
 var extend = require("util-extend");
 var ServiceSet = require("./service-set");
 var Client = require("./adapters/xhr");
@@ -18,7 +18,7 @@ function XhrServiceSet(config) {
   ServiceSet.call(this, config);
 }
 
-util.inherits(XhrServiceSet, ServiceSet);
+inherits(XhrServiceSet, ServiceSet);
 
 exports.ServiceSet = XhrServiceSet;
 exports.Client = Client;

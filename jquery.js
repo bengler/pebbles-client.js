@@ -1,6 +1,6 @@
 "use strict";
 
-var util = require("util");
+var inherits = require("inherits");
 var extend = require("util-extend");
 var ServiceSet = require("./service-set");
 var Client = require("./adapters/jquery");
@@ -15,7 +15,7 @@ function jQueryServiceSet(config) {
   ServiceSet.call(this, config);
 }
 
-util.inherits(jQueryServiceSet, ServiceSet);
+inherits(jQueryServiceSet, ServiceSet);
 
 exports.ServiceSet = jQueryServiceSet;
 exports.Client = Client;

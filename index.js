@@ -1,6 +1,6 @@
 "use strict";
 
-var util = require("util");
+var inherits = require("inherits");
 
 var ServiceSet = require("./service-set");
 
@@ -11,7 +11,7 @@ function NodeServiceSet(config) {
   ServiceSet.call(this, config);
 }
 
-util.inherits(NodeServiceSet, ServiceSet);
+inherits(NodeServiceSet, ServiceSet);
 
 exports.Service = require("./service");
 exports.Client = require("./client");

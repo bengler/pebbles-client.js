@@ -1,7 +1,7 @@
 "use strict";
 
 var Client = require("../client");
-var inherits = require("inherits");
+var util = require("util");
 
 function addListener(evnt, elem, func) {
   if (elem.addEventListener) elem.addEventListener(evnt,func,false);
@@ -14,7 +14,7 @@ function CheckpointClient() {
   Client.apply(this, arguments);
 }
 
-inherits(CheckpointClient, Client);
+util.inherits(CheckpointClient, Client);
 
 CheckpointClient.prototype._registerFocusMessageHandler = function () {
   this._registerFocusMessageHandler = Function.prototype;
