@@ -70,8 +70,8 @@ CheckpointClient.prototype.login = function (provider, opts, cb) {
   };
 };
 
-CheckpointClient.prototype.logout = function () {
-  return this.post("/logout");
+CheckpointClient.prototype.logout = function (cb) {
+  return this.post("/logout", cb);
 };
 
 
