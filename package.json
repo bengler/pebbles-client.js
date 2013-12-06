@@ -17,6 +17,7 @@
     "request": "~2.27.0",
     "sinon": "~1.7.3",
     "xhr": "~1.2.3",
-    "inherits": "~2.0.1"
+    "inherits": "~2.0.1",
+    "json-stream": "~0.2.0"
   }
 }

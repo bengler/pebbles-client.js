@@ -1,78 +1,94 @@
 "use strict";
 
 var Client = require("../client");
-var util = require("util");
+var inherits = require("inherits");
+var Readable = require('stream').Readable;
+var JSONStream = require('json-stream');
+var through = require("through");
 
-function addListener(evnt, elem, func) {
-  if (elem.addEventListener) elem.addEventListener(evnt,func,false);
-  else if (elem.attachEvent) {
-    return elem.attachEvent("on"+evnt, func);
-  }
-}
+module.exports = TiramisuClient
 
-function CheckpointClient() {
+function TiramisuClient() {
   Client.apply(this, arguments);
 }
 
-util.inherits(CheckpointClient, Client);
+inherits(TiramisuClient, Client);
 
-CheckpointClient.prototype._registerFocusMessageHandler = function () {
-  this._registerFocusMessageHandler = Function.prototype;
-  addListener(window, "message", function (e) {
-    if (e.data === 'checkpoint-login-success') {
-      window.focus();
-    }
+TiramisuClient.prototype.upload = function (endpoint, fileField, cb) {
+
+  var formData = new FormData();
+  formData.append(fileField.name, fileField.files[0]);
+
+  var xhr = new XMLHttpRequest();
+  var progress = new ProgressStream(xhr);
+  xhr.open("POST", this.urlTo(endpoint));
+  xhr.withCredentials = true;
+  var error = null;
+  progress.on('error', function (e) {
+    error = e;
   });
-};
-
-CheckpointClient.prototype.login = function (provider, opts, cb) {
-  opts || (opts = {});
-  opts.pollInterval || (opts.pollInterval = 1000);
-  opts.display || (opts.display = 'popup');
-  cb || (cb = function() {});
-
-  if (provider == null) {
-    throw new Error("Provider not selected")
-  }
-
-  var params = [];
-  params.push("display=" + opts.display);
-
-  if (opts.redirectTo) {
-    params.push("redirect_to=" + opts.redirectTo);
-  }
-
-  var url = this.urlTo("/login/" + provider + "?" + (params.join("&")));
-
-  var win = window.open(url, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
-
-  this._registerFocusMessageHandler();
-  
-  var pollId = setInterval(poll.bind(this), opts.pollInterval);
-
-  function stop(err, me) {
-    if (!win.closed) win.close();
-    window.focus();
-    clearInterval(pollId);
-    cb(err, me);
-  }
-
-  function poll() {
-    if (win.closed) {
-      stop("Login window closed by user");
-    }
-    this.get("/identities/me", function(err, me) {
-      console.log(me)
-      if (me.identity && !me.identity.provisional && me.accounts.indexOf(provider) > -1) {
-        stop(null, me);
-      }
+  if (typeof cb == 'function') {
+    progress.on('end', function (body) {
+      cb(error, body, progress);
     });
-  };
+  }
+  xhr.send(formData);
+  return progress.pipe(new JSONStream())
 };
 
-CheckpointClient.prototype.logout = function () {
-  return this.post("/logout");
+var ProgressStream = function (xhr) {
+  Readable.call(this);
+  this.offset = 0;
+  this.readable = true;
+  xhr.upload.addEventListener("progress", this.reportProgress.bind(this), false);
+  xhr.addEventListener('readystatechange', this.handleReadyStateChange.bind(this, xhr), false);
 };
 
+inherits(ProgressStream, Readable);
 
-module.exports = CheckpointClient;
+ProgressStream.prototype.getResponse = function (xhr) {
+  return xhr.responseText;
+};
+
+ProgressStream.prototype._beginRead = function (xhr) {
+  // todo: make interval configurable
+  this._checkInterval = setInterval(this._checkData.bind(this, xhr), 100)
+}
+
+ProgressStream.prototype._endRead = function (xhr) {
+  this._checkData(xhr);
+  this._checkInterval = clearInterval(this._checkInterval);
+}
+ProgressStream.prototype.reportProgress = function (progressEvent) {
+  var percent = progressEvent.lengthComputable ? Math.ceil((progressEvent.loaded / progressEvent.total) * 100) : -1;
+  this.push('{"percent": ' + percent + ',"status": "uploading"}\n');
+};
+
+ProgressStream.prototype.handleReadyStateChange = function (xhr) {
+  if (xhr.readyState === 1) {
+    this.emit('ready');
+  }
+  else if (xhr.readyState === 3) {
+    // Start reading the response
+    this._beginRead(xhr);
+  }
+  else if (xhr.readyState === 4) {
+    // finish reading last received chunk of data
+    this._endRead(xhr);
+    if (xhr.error) {
+      this.emit('error', this.getResponse(xhr));
+    }
+    else {
+      this.emit('end');
+    }
+    this.emit('close');
+  }
+};
+
+ProgressStream.prototype._checkData = function (xhr) {
+  var respBody = this.getResponse(xhr);
+  if (respBody.length > this.offset) {
+    this.push(respBody.slice(this.offset));
+    this.offset = respBody.length;
+  }
+};
