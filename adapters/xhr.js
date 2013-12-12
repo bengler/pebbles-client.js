@@ -8,6 +8,12 @@ var defaultOpts = {
   cors: true
 };
 
+function adaptCallback(callback) {
+  return function(err, resp, body) {
+    return callback(err, JSON.parse(body), resp);
+  }
+}
+
 module.exports = function request(options, callback) {
   var requestOpts = extend({}, defaultOpts);
   requestOpts.method = options.method;
@@ -23,5 +29,5 @@ module.exports = function request(options, callback) {
   }
 
   callback || (callback = function() {})
-  return xhr(requestOpts, callback);
+  return xhr(requestOpts, adaptCallback(callback));
 };
