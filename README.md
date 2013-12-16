@@ -15,7 +15,7 @@ services.checkpoint.request(options, callback)
 ```javascript
 var ServiceSet = require("pebbles-client").ServiceSet;
 
-var services = new ServiceSet({rootUrl: "http://pebbles.o5.no"}).use({
+var services = new ServiceSet({baseUrl: "http://pebbles.o5.no"}).use({
   checkpoint: 1,
   grove: 1
 });

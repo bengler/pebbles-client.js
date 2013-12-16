@@ -4,7 +4,6 @@ var slice = [].slice;
 
 module.exports = Client;
 
-var url = require("url");
 var extend = require("util-extend");
 
 function isObject(val) {
@@ -32,15 +31,13 @@ function normalizeArgs(args, method, secondArg) {
   var cb = args[args.length - 1];
   return typeof cb === 'function' ? [options, cb] : [options];
 }
-// A connector is a wrapper arount a service and a client, providing an easy way to do various requests to
+// A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.
 function Client(opts) {
   if (!opts) throw Error("No options given");
   if (!opts.service) throw Error("No service given");
-  this.resourceOptions = opts.resourceOptions || {};
   this.service = opts.service;
-  this.rootUrl = url.parse(opts.rootUrl || "");
-  this.adapter = opts.adapter;
+  this.connector = opts.connector;
 }
 
 Client.prototype.request = function request(options, callback) {
@@ -49,17 +46,13 @@ Client.prototype.request = function request(options, callback) {
   }
   if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
   var opts = extend({}, options);
-  opts.url = this.urlTo(options.endpoint);
-  delete opts.endpoint; // Not needed anymore
-
-  // Forward to adapter
-  return this.adapter.apply(this.adapter, [opts].concat(slice.call(arguments, 1)));
+  opts.endpoint = this.urlTo(options.endpoint);
+  // Delegate the actual request to the connector
+  return this.connector.request.apply(this.connector, [opts].concat(slice.call(arguments, 1)));
 };
 
 Client.prototype.urlTo = function urlTo(endpoint) {
-  var u = url.parse(this.rootUrl.format());
-  u.pathname = this.service.pathTo(endpoint);
-  return u.format();
+  return this.service.pathTo(endpoint)
 };
 
 Client.prototype.get = function get(endpoint, queryString, opts, cb) {
@@ -78,9 +71,9 @@ Client.prototype.put = function put(endpoint, body, opts, cb) {
   return this.request.apply(this, normalizeArgs(arguments, 'put', 'body'));
 };
 
-Client.prototype.resource = function(root, options) {
-  options || (options = {});
+Client.prototype.resource = function(basePath, options) {
+  var opts = extend(extend({client: this}, this.service.resourceSettings), options); 
   var Resource = require("./resource");
-  options = extend({client: this}, extend(this.resourceOptions, options))
-  return new Resource(root, options);
+  console.log(this.service.resourceSettings)
+  return new Resource(basePath, opts);
 };

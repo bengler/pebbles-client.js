@@ -6,7 +6,8 @@ module.exports = Service;
 
 // A Service is simply a description of a web service without context (i.e. hostname, etc)
 function Service(name, version, opts) {
-  this.opts = opts || {};
+  opts || (opts = {});
+  this.resourceSettings = opts.resourceSettings;
   this.name = name;
   this.version = version;
   this.resources = [];

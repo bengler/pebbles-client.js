@@ -16,13 +16,13 @@ function unwrapCollection(ns) {
   };
 }
 
-function Resource(root, opts) {
-  if (!opts) throw new Error("No options given");
-  if (!opts.client) throw new Error("No client given");
-  this.namespace = opts.namespace || {};
-  this.client = opts.client;
-  this._delimiter = opts.delimiter || '/';
-  this.root = root;
+function Resource(root, options) {
+  if (!options) throw new Error("No options given");
+  if (!options.client) throw new Error("No client given");
+  this.namespace = options.namespace || {};
+  this.client = options.client;
+  this._delimiter = options.delimiter || '/';
+  this.basePath = basePath;
 }
 function withCallback(options, args, unwrapper) {
   var cb = args[args.length - 1];
@@ -47,7 +47,7 @@ Resource.prototype._request = function index(options, cb) {
 Resource.prototype.index = function index(queryString, opts, cb) {
   var options = {
     method: 'get',
-    endpoint: this.root
+    endpoint: this.basePath
   };
   if (typeof arguments[0] === 'object' || typeof arguments[0] === 'string') {
     options.queryString = arguments[0];
@@ -67,7 +67,7 @@ Resource.prototype.collection = Resource.prototype.index;
 Resource.prototype.get = function get(id, queryString, opts, callback) {
   var options = {
     method: 'get',
-    endpoint: [this.root, id].join(this._delimiter)
+    endpoint: [this.basePath, id].join(this._delimiter)
   };
   if (typeof arguments[1] === 'object') {
     options.queryString = arguments[1];
@@ -81,7 +81,7 @@ Resource.prototype.get = function get(id, queryString, opts, callback) {
 Resource.prototype.del = function del(id, queryString, opts, callback) {
   var options = {
     method: 'delete',
-    endpoint: [this.root, id].join(this._delimiter)
+    endpoint: [this.basePath, id].join(this._delimiter)
   };
   if (typeof arguments[1] === 'object') {
     options.queryString = arguments[1];
@@ -95,7 +95,7 @@ Resource.prototype.del = function del(id, queryString, opts, callback) {
 Resource.prototype.post = function post(body, opts, callback) {
   var options = {
     method: 'post',
-    endpoint: this.root,
+    endpoint: this.basePath,
     body: this.namespace.one ? namespace(body, this.namespace.one) : body
   };
   if (opts && typeof(opts) === 'object') {
@@ -110,7 +110,7 @@ Resource.prototype.put = function put(id, params, opts, cb) {
   this.namespace.one && (body = body[this.namespace.one]);
   var options = {
     method: 'put',
-    endpoint: this.root,
+    endpoint: this.basePath,
     body: this.namespace.one ? namespace(body, this.namespace.one) : body
   };
   if (opts && isObject(opts)) {
