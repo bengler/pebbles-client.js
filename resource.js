@@ -16,7 +16,7 @@ function unwrapCollection(ns) {
   };
 }
 
-function Resource(root, options) {
+function Resource(basePath, options) {
   if (!options) throw new Error("No options given");
   if (!options.client) throw new Error("No client given");
   this.namespace = options.namespace || {};
