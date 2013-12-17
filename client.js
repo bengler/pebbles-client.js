@@ -46,13 +46,14 @@ Client.prototype.request = function request(options, callback) {
   }
   if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
   var opts = extend({}, options);
-  opts.endpoint = this.urlTo(options.endpoint);
+  opts.url = this.urlTo(options.endpoint);
+  delete opts.endpoint; // Not needed anymore
   // Delegate the actual request to the connector
   return this.connector.request.apply(this.connector, [opts].concat(slice.call(arguments, 1)));
 };
 
 Client.prototype.urlTo = function urlTo(endpoint) {
-  return this.service.pathTo(endpoint)
+  return this.connector.urlTo(this.service.pathTo(endpoint));
 };
 
 Client.prototype.get = function get(endpoint, queryString, opts, cb) {

@@ -25,13 +25,10 @@ function Connector(options) {
   }, this);
 }
 
-Connector.prototype.request = function request(options) {
-  var opts = extend({}, extend(this.defaults, options));
-  opts.url = this.urlTo(options.endpoint);
-  delete opts.endpoint; // Not needed anymore
+Connector.prototype.request = function request(options, callback) {
   // Forward to adapter
   if (typeof this.adapter !== 'function') throw new Error("Missing adapter for connector");
-  return this.adapter.apply(this.adapter, [opts].concat(slice.call(arguments, 1)));
+  return this.adapter.apply(this.adapter, arguments);
 };
 
 Connector.prototype.urlTo = function(path) {
