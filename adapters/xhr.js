@@ -5,7 +5,8 @@ var url = require("url")
 var extend = require("util-extend");
 
 var defaultOpts = {
-  cors: true
+  cors: true,
+  headers: { Accept: "application/json,text/plain,* / *" }
 };
 
 function adaptCallback(callback) {
