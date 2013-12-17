@@ -2,21 +2,21 @@
 
 var inherits = require("inherits");
 var extend = require("util-extend");
-var ServiceSet = require("./service-set");
+var Connector = require("./connector");
 var Client = require("./adapters/jquery");
 
 var defaultServiceClasses = {
   checkpoint: require("./clients/checkpoint")
 };
 
-function jQueryServiceSet(config) {
+function jQueryConnector(config) {
   config.serviceClasses = extend(defaultServiceClasses, config.serviceClasses || {});
   config.client = new Client(config);
-  ServiceSet.call(this, config);
+  Connector.call(this, config);
 }
 
-inherits(jQueryServiceSet, ServiceSet);
+inherits(jQueryConnector, Connector);
 
-exports.ServiceSet = jQueryServiceSet;
+exports.Connector = jQueryConnector;
 exports.Client = Client;
 exports.Service = require("./service");

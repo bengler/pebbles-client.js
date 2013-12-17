@@ -2,24 +2,19 @@
 
 var inherits = require("inherits");
 var extend = require("util-extend");
-var ServiceSet = require("./service-set");
+var Connector = require("./connector");
 var Client = require("./adapters/xhr");
-
-var defaultClientClasses = {
-  checkpoint: require("./clients/checkpoint")
-};
 
 var adapter = require("./adapters/xhr");
 
-function XhrServiceSet(config) {
+function XhrConnector(config) {
   config || (config = {});
-  config.clientClasses = extend(defaultClientClasses, config.clientClasses || {});
   config.adapter = adapter;
-  ServiceSet.call(this, config);
+  Connector.call(this, config);
 }
 
-inherits(XhrServiceSet, ServiceSet);
+inherits(XhrConnector, Connector);
 
-exports.ServiceSet = XhrServiceSet;
+exports.Connector = XhrConnector;
 exports.Client = Client;
 exports.Service = require("./service");
