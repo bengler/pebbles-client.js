@@ -19,13 +19,13 @@ module.exports = function request(options, callback) {
   var requestOpts = extend({}, defaultOpts);
   requestOpts.method = options.method;
   requestOpts.uri = options.url;
-  
   if (options.queryString) {
     var u = url.parse(requestOpts.uri, true, true)
     u.query = extend(u.query, options.queryString)
     requestOpts.uri = url.format(u);
   }
-  if (requestOpts.body) {
+
+  if (options.body) {
     requestOpts.json = options.body;
   }
 
