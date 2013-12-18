@@ -2,7 +2,7 @@
 
 var xhr = require("xhr")
 var url = require("url")
-var extend = require("util-extend");
+var merge = require("deepmerge");
 
 var defaultOpts = {
   cors: true,
@@ -11,20 +11,25 @@ var defaultOpts = {
 
 function adaptCallback(callback) {
   return function(err, resp, body) {
-    return callback(err, JSON.parse(body), resp);
+    // Xhr may not parse text response as json by default (it only does so when options.json is set to an object)
+    // Therefore we need to parse it in these situations
+    if (typeof body == 'string') {
+      try { body = JSON.parse(body) } catch (e) {}
+    }
+    return callback(err, body, resp);
   }
 }
 
 module.exports = function request(options, callback) {
-  var requestOpts = extend({}, defaultOpts);
-  requestOpts.method = options.method;
-  requestOpts.uri = options.url;
+  var requestOpts = merge(defaultOpts, {
+    method: options.method,
+    uri: options.url
+  });
   if (options.queryString) {
     var u = url.parse(requestOpts.uri, true, true)
-    u.query = extend(u.query, options.queryString)
+    u.query = merge(u.query, options.queryString)
     requestOpts.uri = url.format(u);
   }
-
   if (options.body) {
     requestOpts.json = options.body;
   }
