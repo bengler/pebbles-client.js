@@ -49,7 +49,7 @@ ReaktorCoreClient.prototype.requireCapability = function requireCapability(capab
     }
     // Level up!
     _this.upgrade(role.upgrades[capability][0], function(err, result) {
-      if (err) return callback(err, result);
+      if (err || result.status == 'cancelled') return callback(err, result);
       // Role should now have been upgraded one level, proceed to next level (or finish) by calling requireCapability again
       _this.requireCapability(capability, callback);
     });
