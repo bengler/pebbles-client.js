@@ -54,7 +54,10 @@ CheckpointClient.prototype.login = function (provider, opts, callback) {
   
   var pollId = setInterval(poll.bind(this), opts.pollInterval);
 
+  var stopped = false;
   function stop(err, args) {
+    if (stopped) return;
+    stopped = true;
     if (!win.closed) win.close();
     window.focus();
     clearInterval(pollId);
