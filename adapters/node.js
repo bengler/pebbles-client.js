@@ -21,6 +21,8 @@ module.exports = function request(options, callback) {
   requestOpts.method = options.method;
   requestOpts.url = options.url;
   requestOpts.qs = options.queryString;
+  requestOpts.body = options.body;
   var args = typeof callback == 'function' ? [requestOpts, swapBodyAndReq(callback)] : [requestOpts];
+
   return _request.apply(_request, args);
 };
