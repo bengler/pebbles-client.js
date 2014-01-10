@@ -83,5 +83,36 @@ CheckpointClient.prototype.logout = function (cb) {
   return this.post("/logout", cb);
 };
 
+// These methods checks/makes sure that a session has been set on the domain we are connecting to.
+// Toghether they provide a workaround for a bug/problem with Safari on iOS that will omit sending cookie to a
+// "thirdparty" domain. A "thirdparty" domain in this context means a domain that the browser has not previously visited.
+// (Yeah, even when withCredentials=true, Safari on iOS 7 will omit cookies for x-domain requests to "thirdparty" domains)
+CheckpointClient.prototype.checkSession = function checkSession(cb) {
+  var _this = this;
+  // In case we have no session cookie set, this first request will set it
+  this.get('check-session', function(err, status) {
+    if (err) return cb(err);
+    // A session cookie was already set, all good 
+    if (status.ok) return cb(null, true);
+
+    // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.   
+    _this.get('check-session', function(err, status) {
+      if (err) return cb(err);
+      // status.ok is true if cookie is set
+      cb(null, status.ok);
+    })
+  });
+};
+
+CheckpointClient.prototype.ensureSession = function ensureSession() {
+  var _this = this;
+  this.checkSession(function(err, isSessionReady) {
+    if (!isSessionReady) {
+      // Browser is not sending any cookies to the domain. Booo :-(
+      // We need to navigate to checkpoints /ensure-session endpont on the domain, specifying where to redirect after
+      document.location.href = _this.urlTo("check-session", { redirect_to: document.location.href })
+    }
+  })
+};
 
 module.exports = CheckpointClient;
