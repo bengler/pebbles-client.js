@@ -52,8 +52,8 @@ Client.prototype.request = function request(options, callback) {
   return this.connector.request.apply(this.connector, [opts].concat(slice.call(arguments, 1)));
 };
 
-Client.prototype.urlTo = function urlTo(endpoint) {
-  return this.connector.urlTo(this.service.pathTo(endpoint));
+Client.prototype.urlTo = function urlTo(endpoint, queryString) {
+  return this.connector.urlTo(this.service.pathTo(endpoint), queryString);
 };
 
 Client.prototype.get = function get(endpoint, queryString, opts, cb) {

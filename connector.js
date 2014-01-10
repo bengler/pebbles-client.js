@@ -31,8 +31,11 @@ Connector.prototype.request = function request(options, callback) {
   return this.adapter.apply(this.adapter, arguments);
 };
 
-Connector.prototype.urlTo = function(path) {
-  var u = url.parse(this.baseUrl);
+Connector.prototype.urlTo = function(path, queryString) {
+  var u = url.parse(this.baseUrl, !!queryString);
+  if (queryString) {
+    u.query = u.query ? extend(u.query, queryString) : queryString;
+  }
   u.pathname = path;
   return u.format();
 };
