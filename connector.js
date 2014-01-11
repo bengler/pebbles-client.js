@@ -37,7 +37,7 @@ Connector.prototype.urlTo = function(path, queryString) {
     u.query = u.query ? extend(u.query, queryString) : queryString;
   }
   u.pathname = path;
-  return u.format();
+  return url.format(u);
 };
 
 Connector.prototype.use = function use(mixed, opts) {
