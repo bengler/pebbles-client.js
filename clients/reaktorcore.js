@@ -28,9 +28,9 @@ ReaktorCoreClient.prototype.setUpgrader = function setUpgrader(upgrade, upgrader
   this.upgraders[upgrade] = upgrader;
 };
 
-ReaktorCoreClient.prototype.upgrade = function upgrade(upgrade, callback) {
-  var upgrader = this.upgraders[upgrade];
-  if (!upgrader) throw Error("No registered upgrade `"+upgrade+"` for ReaktorCore client. Cannot continue.");
+ReaktorCoreClient.prototype.upgrade = function upgrade(upgradeName, callback) {
+  var upgrader = this.upgraders[upgradeName];
+  if (!upgrader) throw Error("No registered upgrade `"+upgradeName+"` for ReaktorCore client. Cannot continue.");
   return upgrader(callback);
 };
 
