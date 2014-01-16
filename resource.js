@@ -28,7 +28,7 @@ function withCallback(options, args, unwrapper) {
   var cb = args[args.length - 1];
   if (typeof cb === 'function') {
     return [options, function (err, body, response) {
-      cb(err, unwrapper(body), response);
+      cb(err, err ? body : unwrapper(body), response);
     }]
   }
   return [options];
