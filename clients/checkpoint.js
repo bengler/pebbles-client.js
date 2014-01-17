@@ -68,12 +68,12 @@ CheckpointClient.prototype.login = function (provider, opts, callback) {
   }
 
   function poll() {
-    if (win.closed) {
-      stop(new Error("Login window closed by user"), { status: 'cancelled' });
-    }
     this.get("/identities/me", function(err, me) {
       if (me.identity && !me.identity.provisional && me.accounts.indexOf(provider) > -1) {
         stop(null, me);
+      }
+      else if (win.closed) {
+        stop(new Error("Login window closed by user"), { status: 'cancelled' });
       }
     });
   }
