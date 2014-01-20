@@ -22,7 +22,7 @@ XhrResponseProgressStream.prototype._beginRead = function (xhr) {
   this._checkInterval = setInterval(this._checkData.bind(this, xhr), 100)
 }
 
-IframeResponseProgressStream.prototype._read = function () {
+XhrResponseProgressStream.prototype._read = function () {
 
 }
 XhrResponseProgressStream.prototype._endRead = function (xhr) {
