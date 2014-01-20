@@ -50,7 +50,7 @@ TiramisuIframeClient.prototype.upload = function (endpoint, fileField, callback)
     enctype: 'multipart/form-data'
   });
 
-  var origin = actionUrl.protocol+"//"+actionUrl.host;
+  var origin = (actionUrl.protocol||document.location.protocol)+"//"+(actionUrl.host || document.location.host);
   if (actionUrl.port) origin += ":"+actionUrl.port
   var progress = new ProgressStream(iframe, origin);
   var error = null;

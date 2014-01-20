@@ -14,7 +14,14 @@ function IframeResponseProgressStream(iframe, origin) {
 
   this.filterMessage = function (messageEvent) {
     if (messageEvent.origin != this.origin) return;
-    this.handleEvent(JSON.parse(messageEvent.data))
+    var progress;
+    try {
+      progress = JSON.parse(messageEvent.data)
+    }
+    catch (e) {
+      return
+    }
+    this.handleEvent(progress)
   }.bind(this);
 
   iframe.addEventListener("readystatechange", this.handleReadyStateChange.bind(this))
@@ -34,11 +41,8 @@ IframeResponseProgressStream.prototype.handleReadyStateChange = function (ev) {
   else if (readyState === 'complete') {
     if (!this._gotMessage) {
       this.emit('error', new Error('Unable to communicate with server'));
+      this.emit('close');
     }
-    else {
-      this.emit('end');
-    }
-    this.emit('close');
   }
 };
 
@@ -48,6 +52,8 @@ IframeResponseProgressStream.prototype.handleEvent = function(progressEvent) {
   this.push(JSON.stringify(progressEvent)+"\n")
   if (progressEvent.status == 'failed' || progressEvent.status == 'completed') {
     window.removeEventListener('message', this.filterMessage);
+    this.emit("end");
+    this.emit('close')
   }
 }
 IframeResponseProgressStream.prototype._beginFakeUploadProgress = function () {
