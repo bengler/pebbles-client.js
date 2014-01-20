@@ -38,6 +38,7 @@ TiramisuIframeClient.prototype.upload = function (endpoint, fileField, callback)
   var iframeName = 'pebbles_iframe_uploader' + Math.random().toString(36).substring(2);
   var iframe = document.createElement("iframe");
   iframe.name = iframeName;
+  iframe.style.display = 'none';
   document.body.appendChild(iframe);
   var form = fileField.form;
 
