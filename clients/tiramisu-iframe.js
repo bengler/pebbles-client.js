@@ -46,7 +46,7 @@ TiramisuIframeClient.prototype.upload = function (endpoint, fileField, callback)
   var overriddenAttrs = overrideAttrs(form, {
     method: 'post',
     target: iframeName,
-    action: actionUrl.format(),
+    action: url.format(actionUrl),
     enctype: 'multipart/form-data'
   });
 
