@@ -67,5 +67,5 @@ IframeResponseProgressStream.prototype._endFakeUploadProgress = function () {
 
 IframeResponseProgressStream.prototype._reportFakeUploadProgress = function () {
   this._fakedUploadProgress += ((100 - this._fakedUploadProgress) / 100);
-  this.push('{"percent": ' + this._fakedUploadProgress + ',"status": "uploading"}\n');
+  this.push('{"percent": ' + Math.round(this._fakedUploadProgress) + ',"status": "uploading"}\n');
 }
