@@ -10,8 +10,14 @@ module.exports = function factory($http) {
     });
 
     if (typeof callback == 'function') {
-      req.success(function(res){ callback(null, res, req) });
-      req.error(function(res) { callback(res, res, req) });
+      req.success(function(res){
+        console.log(arguments)
+        callback(null, res, req) }
+      );
+      req.error(function(message, statusCode) {
+        var response = {statusCode: statusCode};
+        callback(message, response, req)
+      });
     }
 
     return req

@@ -90,8 +90,8 @@ CheckpointClient.prototype.logout = function (cb) {
 CheckpointClient.prototype.checkSession = function checkSession(cb) {
   var _this = this;
   // In case we have no session cookie set, this first request will set it
-  this.get('check-session', function(err, status) {
-    if (err) return cb(err);
+  this.get('check-session', function(err, response) {
+    if (err) return cb(new Error("HTTP "+response.statusCode+" error when requesting checkpoint at "+_this.urlTo("check-session")));
     // A session cookie was already set, all good 
     if (status.ok) return cb(null, true);
 
@@ -107,6 +107,9 @@ CheckpointClient.prototype.checkSession = function checkSession(cb) {
 CheckpointClient.prototype.ensureSession = function ensureSession() {
   var _this = this;
   this.checkSession(function(err, isSessionReady) {
+    if (err) {
+      return console.log("Unable to make sure we can have a session:", err.message);
+    }
     if (!isSessionReady) {
       // Browser is not sending any cookies to the domain. Booo :-(
       // We need to navigate to checkpoints /ensure-session endpont on the domain, specifying where to redirect after
