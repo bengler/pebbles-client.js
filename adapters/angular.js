@@ -11,12 +11,10 @@ module.exports = function factory($http) {
 
     if (typeof callback == 'function') {
       req.success(function(res){
-        console.log(arguments)
         callback(null, res, req) }
       );
       req.error(function(message, statusCode) {
-        var response = {statusCode: statusCode};
-        callback(message, response, req)
+        callback({statusCode: statusCode}, message, req);
       });
     }
 
