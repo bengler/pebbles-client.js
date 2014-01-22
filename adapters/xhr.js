@@ -1,12 +1,14 @@
 "use strict";
 
-var xhr = require("xhr")
-var url = require("url")
+var xhr = require("xhr");
+var url = require("url");
 var merge = require("deepmerge");
 
 var defaultOpts = {
-  cors: true,
-  headers: { Accept: "application/json,text/plain,* / *" }
+  cors: true
+};
+var defaultHeaders = {
+  Accept: "application/json,text/plain,* / *"
 };
 
 function adaptCallback(callback) {
@@ -23,7 +25,8 @@ function adaptCallback(callback) {
 module.exports = function request(options, callback) {
   var requestOpts = merge(defaultOpts, {
     method: options.method,
-    uri: options.url
+    uri: options.url,
+    headers: merge(defaultHeaders, options.headers || {})
   });
   if (options.queryString) {
     var u = url.parse(requestOpts.uri, true, true)
