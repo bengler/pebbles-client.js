@@ -75,6 +75,5 @@ Client.prototype.put = function put(endpoint, body, opts, cb) {
 Client.prototype.resource = function(basePath, options) {
   var opts = extend(extend({client: this}, this.service.resourceSettings), options); 
   var Resource = require("./resource");
-  console.log(this.service.resourceSettings)
   return new Resource(basePath, opts);
 };
