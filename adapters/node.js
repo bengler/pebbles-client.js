@@ -8,9 +8,20 @@ var defaultOpts = {
   json: true
 };
 
-function swapBodyAndReq(callback) {
+var httpStatusCodes = require("../util/http-status");
+function adaptResponse(body, native) {
+  return {
+    statusCode: native.statusCode,
+    statusText: httpStatusCodes[native.statusCode],
+    responseText: JSON.stringify(body),
+    headers: extend({}, native.headers),
+    native: native
+  };
+}
+
+function adaptCallback(callback) {
   return function(err, resp, body) {
-    return callback(err, body, resp);
+    return callback(err, body, adaptResponse(body, resp));
   }
 }
 
@@ -22,7 +33,7 @@ module.exports = function request(options, callback) {
   requestOpts.url = options.url;
   requestOpts.qs = options.queryString;
   requestOpts.body = options.body;
-  var args = typeof callback == 'function' ? [requestOpts, swapBodyAndReq(callback)] : [requestOpts];
 
-  return _request.apply(_request, args);
+  var args = typeof callback == 'function' ? [requestOpts, adaptCallback(callback)] : [requestOpts];
+  _request.apply(_request, args);
 };

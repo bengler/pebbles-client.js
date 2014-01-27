@@ -20,6 +20,9 @@
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
     "through": "~2.3.4",
-    "deepmerge": "~0.2.7"
+    "deepmerge": "~0.2.7",
+    "nock": "~0.27.1",
+    "jquery": "~2.1.0",
+    "mock": "~0.1.1"
   }
 }

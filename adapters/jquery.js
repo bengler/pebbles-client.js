@@ -1,7 +1,6 @@
 "use strict";
 
 var $ = require("jquery");
-var Client = require("../http-client");
 
 function methodOverride(method, url, params) {
   params || (params = {});
