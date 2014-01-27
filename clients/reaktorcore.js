@@ -28,15 +28,17 @@ ReaktorCoreClient.prototype.setUpgrader = function setUpgrader(upgrade, upgrader
   this.upgraders[upgrade] = upgrader;
 };
 
-ReaktorCoreClient.prototype.upgrade = function upgrade(upgradeName, callback) {
+ReaktorCoreClient.prototype.upgrade = function upgrade(upgradeName, opts, callback) {
   var upgrader = this.upgraders[upgradeName];
   if (!upgrader) throw Error("No registered upgrade `"+upgradeName+"` for ReaktorCore client. Cannot continue.");
-  return upgrader(callback);
+  return upgrader(opts, callback);
 };
 
-ReaktorCoreClient.prototype.requireCapability = function requireCapability(capability, callback) {
-  callback || (callback = function() {});
-
+ReaktorCoreClient.prototype.requireCapability = function requireCapability(capability, opts, callback) {
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
   var _this = this;
   this.getRole(function(err, role) {
     if (err) return callback(err, role);
@@ -48,10 +50,10 @@ ReaktorCoreClient.prototype.requireCapability = function requireCapability(capab
       return callback(new Error("Current user has no upgrade path for capability `"+capability+"`"));
     }
     // Level up!
-    _this.upgrade(role.upgrades[capability][0], function(err, result) {
+    _this.upgrade(role.upgrades[capability][0], opts, function(err, result) {
       if (err) return callback(err, result);
       // Role should now have been upgraded one level, proceed to next level (or finish) by calling requireCapability again
-      _this.requireCapability(capability, callback);
+      _this.requireCapability(capability, opts, callback);
     });
   });
 };
