@@ -14,6 +14,7 @@ function adaptResponse(body, native) {
     statusCode: native.statusCode,
     statusText: httpStatusCodes[native.statusCode],
     responseText: JSON.stringify(body),
+    body: body,
     headers: extend({}, native.headers),
     native: native
   };

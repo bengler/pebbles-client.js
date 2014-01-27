@@ -17,6 +17,7 @@ function adaptResponse(data, status, headers, config) {
     statusText: httpStatusCodes[status],
     responseText: JSON.stringify(data),
     headers: normalizeHeaders(headers()),
+    body: data,
     native: config
   };
 }

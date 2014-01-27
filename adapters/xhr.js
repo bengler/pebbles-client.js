@@ -30,6 +30,7 @@ function adaptResponse(body, native) {
     statusText: httpStatusCodes[native.statusCode],
     responseText: JSON.stringify(body),
     headers: normalizeHeaders(native.getAllResponseHeaders()),
+    body: body,
     native: native
   };
 }
