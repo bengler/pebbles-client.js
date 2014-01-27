@@ -50,7 +50,9 @@ ReaktorCoreClient.prototype.requireCapability = function requireCapability(capab
       return callback(new Error("Current user has no upgrade path for capability `"+capability+"`"));
     }
     // Level up!
-    _this.upgrade(role.upgrades[capability][0], opts, function(err, result) {
+    var upgradeName = role.upgrades[capability][0];
+    console.log(upgradeName, opts)
+    _this.upgrade(upgradeName, opts[upgradeName] || {}, function(err, result) {
       if (err) return callback(err, result);
       // Role should now have been upgraded one level, proceed to next level (or finish) by calling requireCapability again
       _this.requireCapability(capability, opts, callback);
