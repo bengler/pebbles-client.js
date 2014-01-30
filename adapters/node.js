@@ -2,6 +2,9 @@
 
 var _request = require("request");
 var extend = require("util-extend");
+var url = require("url");
+var merge = require("deepmerge");
+var stringifyQS = require("../util/stringify-qs");
 
 var defaultOpts = {
   agent: false,
@@ -29,10 +32,17 @@ function adaptCallback(callback) {
 module.exports = function request(options, callback) {
 
   var requestOpts = extend({}, defaultOpts);
+  requestOpts.url = options.url;
 
   requestOpts.method = options.method;
-  requestOpts.url = options.url;
-  requestOpts.qs = options.queryString;
+  if (requestOpts.method.toLowerCase() === 'get' && options.queryString) {
+    requestOpts.url = url.parse(options.url, true, true);
+    requestOpts.url.search = '?'+stringifyQS(merge(requestOpts.url.query, options.queryString));
+    requestOpts.url = url.format(requestOpts.url)
+  }
+  else {
+    requestOpts.qs = options.queryString;
+  }
   requestOpts.body = options.body;
 
   var args = typeof callback == 'function' ? [requestOpts, adaptCallback(callback)] : [requestOpts];
