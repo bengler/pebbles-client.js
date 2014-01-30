@@ -56,7 +56,6 @@ module.exports = function request(options, callback) {
   if (options.queryString) {
     var u = url.parse(requestOpts.uri, true, true)
     u.search = stringifyQS(merge(u.query, options.queryString))
-    console.log(u.query)
     requestOpts.uri = url.format(u);
   }
   if (options.body) {
