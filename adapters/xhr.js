@@ -4,6 +4,7 @@ var xhr = require("xhr");
 var url = require("url");
 var merge = require("deepmerge");
 var extend = require("util-extend");
+var stringifyQS = require("../util/stringify-qs");
 
 var defaultOpts = {
   cors: true
@@ -54,7 +55,8 @@ module.exports = function request(options, callback) {
   });
   if (options.queryString) {
     var u = url.parse(requestOpts.uri, true, true)
-    u.query = merge(u.query, options.queryString)
+    u.search = stringifyQS(merge(u.query, options.queryString))
+    console.log(u.query)
     requestOpts.uri = url.format(u);
   }
   if (options.body) {
