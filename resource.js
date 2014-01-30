@@ -1,5 +1,6 @@
 "use strict";
 
+var extend = require("util-extend");
 var slice = [].slice;
 
 module.exports = Resource;
