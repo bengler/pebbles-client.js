@@ -6,9 +6,6 @@ var merge = require("deepmerge");
 var extend = require("util-extend");
 var stringifyQS = require("../util/stringify-qs");
 
-var defaultOpts = {
-  cors: true
-};
 var defaultHeaders = {
   Accept: "application/json,text/plain,* / *"
 };
@@ -48,16 +45,20 @@ function adaptCallback(callback) {
 }
 
 module.exports = function request(options, callback) {
-  var requestOpts = merge(defaultOpts, {
+  var requestOpts = merge({}, {
     method: options.method,
     uri: options.url,
     headers: merge(defaultHeaders, options.headers || {})
   });
+
+  var destUrl = url.parse(requestOpts.uri, true, true)
   if (options.queryString) {
-    var u = url.parse(requestOpts.uri, true, true)
-    u.search = stringifyQS(merge(u.query, options.queryString))
-    requestOpts.uri = url.format(u);
+    destUrl.search = stringifyQS(merge(destUrl.query, options.queryString))
+    requestOpts.uri = url.format(destUrl);    
   }
+
+  requestOpts.cors = (destUrl.host && destUrl.host !== document.location.host);
+  
   if (options.body) {
     requestOpts.json = options.body;
   }
