@@ -1,6 +1,6 @@
 {
   "name": "pebbles-client",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "private": true,
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
