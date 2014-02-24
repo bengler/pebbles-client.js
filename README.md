@@ -101,8 +101,8 @@ client.request({
   body: {bar: "baz"},
   headers: { "X-FooBarHeader": "baz" }
 }, callback)
-
 ```
+
 #### client.put(endpoint, [body], [options], [callback])
 
 Same as client.post() but with `method: "put"` 
@@ -116,16 +116,23 @@ Same as client.get() but with `method: "delete"`
 Defining a resource provides a simplified way of dealing with specific resource endpoints for a service
 
 #### Example
+
+```js
 acks = services.kudu.resource("/acks")
 
-acks.index({offset: 0, limit: 10}, function(err, acks, response) {
+acks.list({offset: 0, limit: 10}, function(err, acks, response) {
   // The acks argument now contains the 10 first acks!
 })
 
 acks.post({value: 10}, function(err, ack) {
-  // The ack argument is the saved ack!
+  if (!err) {
+    // ack has been saved!
+  }
 })
 
 acks.del(23, function(err, ack) {
-  // Ack 23 is now deleted
+  if (!err) {
+    // Ack with id 23 is now successfully deleted
+  }
 })
+```
