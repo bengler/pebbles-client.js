@@ -7,21 +7,21 @@ Work in progress.
 
 ## Usage example
 
-### Instantiate a set of services
+### Instantiate a set of pebble services
 
 
-services.checkpoint.request(options, callback)
+pebbles.checkpoint.request(options, callback)
 
 ```javascript
-var ServiceSet = require("pebbles-client").ServiceSet;
+var Connector = require("pebbles-client").Connector;
 
-var services = new ServiceSet({baseUrl: "http://pebbles.o5.no"}).use({
+var pebbles = new Connector({baseUrl: "http://pebbles.o5.no"}).use({
   checkpoint: 1,
   grove: 1
 });
 
-var checkpointClient = services.checkpoint;
-var groveClient = services.grove;
+var checkpointClient = pebbles.checkpoint;
+var groveClient = pebbles.grove;
 ```
 
 # API
@@ -38,7 +38,7 @@ var options = {
   queryString: {foo: "bar"},
   body: {post: {document: "Hello world!"}}
 }
-services.grove.request(options, function(err, result) {
+pebbles.grove.request(options, function(err, result) {
   console.log(result)
 });
 ```
@@ -118,7 +118,7 @@ Defining a resource provides a simplified way of dealing with specific resource 
 #### Example
 
 ```js
-acks = services.kudu.resource("/acks")
+acks = pebbles.kudu.resource("/acks")
 
 acks.list({offset: 0, limit: 10}, function(err, acks, response) {
   // The acks argument now contains the 10 first acks!
