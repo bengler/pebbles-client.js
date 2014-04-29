@@ -25,6 +25,9 @@ function adaptResponse(body, native) {
 
 function adaptCallback(callback) {
   return function(err, resp, body) {
+    if (err) {
+      return callback(err, resp)
+    }
     return callback(err, body, adaptResponse(body, resp));
   }
 }
