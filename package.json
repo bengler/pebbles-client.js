@@ -1,10 +1,10 @@
 {
   "name": "pebbles-client",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "private": true,
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
-  "browser":  "./index.browser.js",
+  "browser": "./index.browser.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
