@@ -4,6 +4,7 @@
   "private": true,
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
+  "browser":  "./index.browser.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
