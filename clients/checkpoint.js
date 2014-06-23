@@ -25,7 +25,7 @@ CheckpointClient.prototype._registerFocusMessageHandler = function () {
   });
 };
 
-CheckpointClient.prototype.login = function (provider, opts, callback) {
+CheckpointClient.prototype.login = browserOnly(function (provider, opts, callback) {
   if (typeof opts === 'function') {
     callback = opts;
     opts = {};
@@ -77,17 +77,17 @@ CheckpointClient.prototype.login = function (provider, opts, callback) {
       }
     });
   }
-};
+});
 
-CheckpointClient.prototype.logout = function (cb) {
+CheckpointClient.prototype.logout = browserOnly(function (cb) {
   return this.post("/logout", cb);
-};
+});
 
 // These methods checks/makes sure that a session has been set on the domain we are connecting to.
 // Toghether they provide a workaround for a bug/problem with Safari on iOS that will omit sending cookie to a
 // "thirdparty" domain. A "thirdparty" domain in this context means a domain that the browser has not previously visited.
 // (Yeah, even when withCredentials=true, Safari on iOS 7 will omit cookies for x-domain requests to "thirdparty" domains)
-CheckpointClient.prototype.checkSession = function checkSession(cb) {
+CheckpointClient.prototype.checkSession = browserOnly(function checkSession(cb) {
   var _this = this;
   // In case we have no session cookie set, this first request will set it
   this.get('check-session', function(err, response) {
@@ -102,9 +102,9 @@ CheckpointClient.prototype.checkSession = function checkSession(cb) {
       cb(null, status.ok);
     })
   });
-};
+});
 
-CheckpointClient.prototype.ensureSession = function ensureSession() {
+CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() {
   var _this = this;
   this.checkSession(function(err, isSessionReady) {
     if (err) {
@@ -116,6 +116,20 @@ CheckpointClient.prototype.ensureSession = function ensureSession() {
       document.location.href = _this.urlTo("check-session", { redirect_to: document.location.href })
     }
   })
-};
+});
 
 module.exports = CheckpointClient;
+
+var isBrowser = typeof window !== 'undefined';
+
+// Returns a new function that throws an error if the given function is attempted called in a non-browser env.
+function browserOnly(fn) {
+  return function() {
+    if (!isBrowser) {
+      var fnName = fn.name || '<anonymous>';
+      throw new Error("Attempted to call function '"+fnName+"', in a non-browser environment. " +
+        "You probably want to wrap this call in a if (typeof window !== 'undefined) {...} statement.")
+    }
+    return fn();
+  }
+}
