@@ -128,8 +128,8 @@ function browserOnly(fn) {
     if (!isBrowser) {
       var fnName = fn.name || '<anonymous>';
       throw new Error("Attempted to call function '"+fnName+"', in a non-browser environment. " +
-        "You probably want to wrap this call in a if (typeof window !== 'undefined) {...} statement.")
+        "You probably want to wrap this call in a if (typeof window !== 'undefined') {...} statement.")
     }
-    return fn();
+    return fn.apply(this, arguments);
   }
 }
