@@ -23,11 +23,15 @@ function normalizeHeaders(headers) {
 
 var httpStatusCodes = require("../util/http-status");
 function adaptResponse(body, native) {
+
+  // XDomainRequest in IE9 has no getAllResponseHeaders method... 
+  var headers = 'getAllResponseHeaders' in native ? native.getAllResponseHeaders() : {};
+
   return {
     statusCode: native.statusCode,
     statusText: httpStatusCodes[native.statusCode],
     responseText: JSON.stringify(body),
-    headers: normalizeHeaders(native.getAllResponseHeaders()),
+    headers: normalizeHeaders(headers),
     body: body,
     native: native
   };
