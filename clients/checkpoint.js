@@ -46,7 +46,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts, callbac
     params.push("redirect_to=" + encodeURIComponent(opts.redirectTo));
   }
 
-  var url = this.urlTo("/login/" + provider + "?" + (params.join("&")));
+  var url = this.urlTo("/login/" + provider) + "?" + params.join("&");
 
   var win = window.open(url, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
 
