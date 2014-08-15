@@ -8,36 +8,51 @@ var Client = require("./client");
 var extend = require("util-extend");
 var url = require("url");
 var slice = [].slice;
+var RequestError = require("./util/request-error");
 
-function defaultFactory(clientOpts) {
-  return new Client(clientOpts);
-}
+/**
+ * # Connector
+ *
+ * A connector represents a set of service clients running on a given baseUrl.
+ * It must be instantiated with an HTTP request adapter in order to perform the actual requests.
+ * 
+ * ## Usage:
+ * 
+ * ```js
+ * new Connector({
+ *   baseUrl: 'http://pebblestack.org',
+ *   adapter: nodeAdapter
+ * });
+ * 
+ * ```
+*/
 
 function Connector(options) {
-  options || (options = {});
-  this.baseUrl = options.baseUrl || '';
-  this.defaults = options.defaults || {};
+  // Forward to adapter
+  if (typeof options !== 'object' || typeof options.adapter !== 'function') {
+    throw new Error("A request adapter must be provided when Connector is instantiated");
+  }
   this.adapter = options.adapter;
-  this.clientFactories = options.clientFactories || {};
-
-  Object.keys(options.use || {}).forEach(function(serviceName){
-    this.use(serviceName, options.use[serviceName]);
-  }, this);
+  this.baseUrl = options.baseUrl || '';
+  this.clientClasses = options.clientClasses;
 }
 
-Connector.prototype.request = function request(options, callback) {
-  // Forward to adapter
-  if (typeof this.adapter !== 'function') throw new Error("Missing adapter for connector");
-  return this.adapter.apply(this.adapter, arguments);
+Connector.prototype.request = function request(options) {
+  return this.adapter(options).then(function(response) {
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      throw new RequestError("Request error: "+response.statusCode+" "+response.statusText, response);
+    }
+    return response;
+  });
 };
 
 Connector.prototype.urlTo = function(path, queryString) {
-  var u = url.parse(this.baseUrl, !!queryString);
+  var parsedUrl = url.parse(this.baseUrl, !!queryString);
   if (queryString) {
-    u.query = u.query ? extend(u.query, queryString) : queryString;
+    parsedUrl.query = parsedUrl.query ? extend(parsedUrl.query, queryString) : queryString;
   }
-  u.pathname = path;
-  return url.format(u);
+  parsedUrl.pathname = path;
+  return url.format(parsedUrl);
 };
 
 Connector.prototype.use = function use(mixed, opts) {
@@ -67,7 +82,7 @@ Connector.prototype.use = function use(mixed, opts) {
 
   var service = new Service(mixed, version, opts);
 
-  var factory = this.clientFactories[mixed] || defaultFactory;
+  var ClientClass = this.clientClasses[mixed] || Client;
 
   var clientOpts = extend({
     connector: this,
@@ -75,7 +90,7 @@ Connector.prototype.use = function use(mixed, opts) {
     service: service
   }, opts);
 
-  this.use(factory(clientOpts));
+  this.use(new ClientClass(clientOpts));
 
   return this;
 };

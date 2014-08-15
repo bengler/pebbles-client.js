@@ -1,8 +1,8 @@
 "use strict";
 
-var Client = require("../client");
+var Client = require("../../client");
 var inherits = require("inherits");
-var ProgressStream = require("./tiramisu/xhr-progress-stream")
+var ProgressStream = require("./xhr-progress-stream")
 var JSONStream = require('json-stream');
 
 module.exports = TiramisuClient

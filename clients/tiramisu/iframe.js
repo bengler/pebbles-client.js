@@ -1,11 +1,11 @@
 "use strict";
 
-var Client = require("../client");
+var Client = require("../../client");
 var inherits = require("inherits");
 var JSONStream = require('json-stream');
 var url = require("url");
 
-var ProgressStream = require("./tiramisu/iframe-progress-stream");
+var ProgressStream = require("./iframe-progress-stream");
 
 module.exports = TiramisuIframeClient;
 
@@ -34,7 +34,7 @@ function overrideAttrs(elem, attrs) {
   return overridden;
 }
 
-TiramisuIframeClient.prototype.upload = function (endpoint, fileField, callback) {
+TiramisuIframeClient.prototype.upload = function (endpoint, fileField) {
   var iframeName = 'pebbles_iframe_uploader' + Math.random().toString(36).substring(2);
   var iframe = document.createElement("iframe");
   iframe.name = iframeName;

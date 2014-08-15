@@ -3,12 +3,9 @@ pebbles-client.js
 
 Multi-environment JavaScript client for pebbles services
 
-Work in progress.
-
 ## Usage example
 
-### Instantiate a set of pebble services
-
+### Instantiate a set of services
 
 pebbles.checkpoint.request(options, callback)
 
@@ -25,9 +22,68 @@ var groveClient = pebbles.grove;
 ```
 
 # API
-Note: At the moment, only Node.js-style callback asynchronity is supported. Promises and streams are coming soon!
+
+## Service
+
+A service is a context free description of a web service. It does not include any details about where the service may be running,
+so you can use the same service instance to make request to different locations.
+
+The Service class may be subclassed in order to provide service specific helper methods, etc. 
+
+### Methods
+
+#### service#urlTo(endpoint, queryParams)
+Returns the path of the given endpoint, as specified by the pebbles convension `'/api/<service-name>/v<service-version>/<endpoint>` 
+
+```js
+var service = new Service({name: 'foo', version: 1});
+service.urlTo("/my/endpoint");
+//=> "/api/foo/v1/my/endpoint"
+```
+
+## Connector
+
+A connector represents a set of services, and their shared context, i.e.:
+
+  * the domain they are residing on
+  * the session token to use across all services
+
+A connector is also responsible for calculating the full url of a service endpoint path, and delegating requests to the HTTP adapter
+
+### Methods
+
+### connector#urlTo(path, [queryparams])
+
+Returns the fully qualified url to a given endpoint path
+
+var pebbles = new Connector({baseUrl: "http://pebbles.o5.no"});
+pebbles.urlTo('/foo/bar', {baz: 'qux'});
+
+//=> "http://pebbles.o5.no/foo/bar?baz=qux"
+
+### connector#<service>
+
+Each configured service gets represented by a property on the connector instance.
+
+var pebbles = {
+  checkpoint: new CheckpointClient({connector: connector}),
+  grove: new Client({connector: connector}),
+  tiramisu: new TiramisuClient({connector: connector}),
+}
+
+
+```js
+var pebbles = new Connector({baseUrl: "http://pebbles.o5.no"})
+```
 
 ## Client
+
+A client instance provides an api to make requests to a service 
+
+```js
+var client = new Client({service: }
+
+```
 
 ### client.request(options, callback)
 

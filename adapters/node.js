@@ -15,7 +15,7 @@ var httpStatusCodes = require("../util/http-status");
 function adaptResponse(body, native) {
   return {
     statusCode: native.statusCode,
-    statusText: httpStatusCodes[native.statusCode],
+    statusText: httpStatusCodes[native.statusCode] || '<Unknown status code>',
     responseText: JSON.stringify(body),
     body: body,
     headers: extend({}, native.headers),
@@ -23,16 +23,7 @@ function adaptResponse(body, native) {
   };
 }
 
-function adaptCallback(callback) {
-  return function(err, resp, body) {
-    if (err) {
-      return callback(err, resp)
-    }
-    return callback(err, body, adaptResponse(body, resp));
-  }
-}
-
-module.exports = function request(options, callback) {
+module.exports = function request(options) {
 
   var requestOpts = extend({}, defaultOpts);
   requestOpts.url = options.url;
@@ -48,6 +39,9 @@ module.exports = function request(options, callback) {
   }
   requestOpts.body = options.body;
 
-  var args = typeof callback == 'function' ? [requestOpts, adaptCallback(callback)] : [requestOpts];
-  _request.apply(_request, args);
+  return new Promise(function(resolve, reject) {
+    _request(requestOpts, function(err, resp, body) {
+      return err ? reject(err) : resolve(adaptResponse(body, native));
+    });
+  });
 };

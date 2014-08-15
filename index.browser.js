@@ -1,21 +1,21 @@
+"use strict";
+
 // This is the main entry point for require('pebbles-client') in a browser environment.
 // It uses the lightweight xhr adapter instead of the request node module.
 
-"use strict";
-
 var inherits = require("inherits");
-
 var Connector = require("./connector");
 
-var xhrAdapter = require("./adapters/xhr");
-
-function XhrConnector(config) {
-  config.adapter = xhrAdapter;
-  Connector.call(this, config);
+var adapter = require("./adapters/xhr");
+function BrowserConnector(options) {
+  options.adapter = adapter;
+  Connector.call(this, options);
 }
 
-inherits(XhrConnector, Connector);
+inherits(BrowserConnector, Connector);
 
-exports.Service = require("./service");
-exports.Client = require("./client");
-exports.Connector = XhrConnector;
+module.exports = {
+  Service: require("./service"),
+  Client: require("./client"),
+  Connector: BrowserConnector
+};

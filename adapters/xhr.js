@@ -37,16 +37,6 @@ function adaptResponse(body, native) {
   };
 }
 
-function adaptCallback(callback) {
-  return function(err, resp, body) {
-    // Xhr may not parse text response as json by default (it only does so when options.json is set to an object)
-    // Therefore we need to parse it in these situations
-    if (typeof body == 'string') {
-      try { body = JSON.parse(body) } catch (e) {}
-    }
-    return callback(err, body, adaptResponse(body, resp));
-  }
-}
 
 module.exports = function request(options, callback) {
   var requestOpts = merge({}, {
@@ -55,7 +45,7 @@ module.exports = function request(options, callback) {
     headers: merge(defaultHeaders, options.headers || {})
   });
 
-  var destUrl = url.parse(requestOpts.uri, true, true)
+  var destUrl = url.parse(requestOpts.uri, true, true);
   if (options.queryString) {
     destUrl.search = stringifyQS(merge(destUrl.query, options.queryString))
     requestOpts.uri = url.format(destUrl);    
@@ -66,6 +56,18 @@ module.exports = function request(options, callback) {
   if (options.body) {
     requestOpts.json = options.body;
   }
-  callback || (callback = function noop() {})
-  return xhr(requestOpts, adaptCallback(callback));
+
+  return new Promise(function(resolve, reject) {
+    return xhr(requestOpts, function(err, resp, body) {
+      if (err) {
+        return reject(err);
+      }
+      // Xhr may not parse text response as json by default (it only does so when options.json is set to an object)
+      // Therefore we need to parse it in these situations
+      if (typeof body == 'string') {
+        try { body = JSON.parse(body) } catch (e) {}
+      }
+      resolve(adaptResponse(body, resp));
+    });
+  });
 };

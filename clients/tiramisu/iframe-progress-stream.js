@@ -4,7 +4,7 @@ var inherits = require("inherits");
 module.exports = IframeResponseProgressStream;
 
 function IframeResponseProgressStream(iframe, origin) {
-  Readable.call(this);
+  Readable.call(this);  
   this.readable = true;
   this.emit('readable');
   this._beginFakeUploadProgress();
