@@ -2,7 +2,15 @@ var assert = require("assert")
 var mock = require("mock");
 
 describe("XHR HTTP Adapter", function () {
-  it("requests", function (done) {
+  before(function() {
+    global.document = {
+      location: {}
+    };
+  });
+  after(function() {
+    delete global.document;
+  });
+  it("requests", function () {
     var nativeResponse = {
       "statusText":"OK",
       "status": 200,
@@ -44,14 +52,12 @@ describe("XHR HTTP Adapter", function () {
       }
     });
 
-    adapter({method: 'get', url: "http://pebblestack.org/foo"}, function (err, body, response) {
-      assert.equal(err, null);
-      assert.equal(body, mockBody);
+    adapter({method: 'get', url: "http://pebblestack.org/foo"}).then(function (response) {
+      assert.equal(response.body, mockBody);
       assert.equal(response.statusCode, 200);
       assert.equal(response.statusText, "OK");
       assert.equal(response.headers['content-type'], "application/json");
       assert.equal(response.native, nativeResponse);
-      done()
     })
   });
 });

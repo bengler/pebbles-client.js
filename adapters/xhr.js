@@ -38,7 +38,7 @@ function adaptResponse(body, native) {
 }
 
 
-module.exports = function request(options, callback) {
+module.exports = function request(options) {
   var requestOpts = merge({}, {
     method: options.method,
     uri: options.url,

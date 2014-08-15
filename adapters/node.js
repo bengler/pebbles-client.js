@@ -41,7 +41,7 @@ module.exports = function request(options) {
 
   return new Promise(function(resolve, reject) {
     _request(requestOpts, function(err, resp, body) {
-      return err ? reject(err) : resolve(adaptResponse(body, native));
+      return err ? reject(err) : resolve(adaptResponse(body, resp));
     });
   });
 };
