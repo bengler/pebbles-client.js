@@ -52,6 +52,7 @@ module.exports = function request(options, callback) {
   var requestOpts = merge({}, {
     method: options.method,
     uri: options.url,
+    timeout: options.timeout || 5000,
     headers: merge(defaultHeaders, options.headers || {})
   });
 
