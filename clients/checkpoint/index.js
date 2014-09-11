@@ -6,6 +6,7 @@ var inherits = require("inherits");
 
 var utils = require("./utils");
 var browserOnly = utils.browserOnly;
+var LoginError = require("./login-error");
 
 function getBody(response) {
   return response.body;
@@ -136,4 +137,4 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
 
 module.exports = CheckpointClient;
 
-CheckpointClient.LoginError = require("./login-error");
+CheckpointClient.LoginError = LoginError;

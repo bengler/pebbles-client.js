@@ -1,8 +1,9 @@
 var inherits = require("inherits");
 
-function LoginError(message, status) {
-  Error.call(this, message);
-  this.status = status;
+function LoginError(message, code) {
+  Error.call(this);
+  this.message = message;
+  this.code = code;
 }
 
 inherits(LoginError, Error);
