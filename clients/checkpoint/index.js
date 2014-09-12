@@ -54,6 +54,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
   function poll() {
     // Note: its important that we use setInterval and not setTimeout because Safari on IOS kills timeouts for good
     // when page is left in background. Intervals, however are resumed when the user returns to the page again.
+    // We clear it here to avoid excessive polling (better to wait until the request returns before polling again)
     clearInterval(pollTimerId);
 
     return _this.get("/identities/me").then(getBody).then(function(me) {
