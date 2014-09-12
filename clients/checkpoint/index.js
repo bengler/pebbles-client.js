@@ -123,10 +123,6 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
 CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() {
   var _this = this;
   this.checkSession()
-    .catch(function(err) {
-      console.error("Unable to ensure session:");
-      console.error(err);
-    })
     .then(function(sessionReady) {
       if (!sessionReady) {
         // Browser is not sending any cookies to the domain. Booo :-(
@@ -134,6 +130,9 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
         document.location.href = _this.urlTo("check-session", { redirect_to: document.location.href })
       }
     })
+    .catch(function(err) {
+      console.warn("Warning: Unable to ensure session. Details: "+err.stack);
+    });
 });
 
 module.exports = CheckpointClient;
