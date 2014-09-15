@@ -12,6 +12,20 @@ function merge() {
   }, {});
 }
 
+function StreamWrapper(client) {
+  this.client = client;
+}
+
+StreamWrapper.prototype.request = function(opts) {
+  return this.client({stream: true}, opts);
+};
+
+['get', 'del', 'post', 'put'].forEach(function(method) {
+  StreamWrapper.prototype[method] = function(_, __, opts) {
+    return this.client[method](_, __, merge({stream: true}, opts));
+  };
+});
+
 // A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.
 function Client(opts) {
@@ -35,6 +49,10 @@ Client.prototype.request = function request(options) {
   delete opts.endpoint; // Not needed anymore
   // Delegate the actual request to the connector
   return this.connector.request(opts);
+};
+
+Client.prototype.stream = function stream() {
+  return new StreamWrapper(this);
 };
 
 Client.prototype.get = function get(endpoint, queryString, opts) {

@@ -18,12 +18,10 @@
     "sinon": "^1.10.3"
   },
   "dependencies": {
-    "util-extend": "~1.0.1",
     "deepmerge": "~0.2.7",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
-    "request": "~2.27.0",
-    "xhr": "~1.2.3",
-    "through": "~2.3.4"
+    "through": "^2.3.4",
+    "util-extend": "~1.0.1"
   }
 }

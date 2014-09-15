@@ -3,7 +3,7 @@
 var inherits = require("inherits");
 var Connector = require("./connector");
 
-var adapter = require("./adapters/node");
+var adapter = require("./adapters/node-http");
 function NodeConnector(options) {
   options.adapter = adapter;
   Connector.call(this, options);

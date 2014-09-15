@@ -29,7 +29,7 @@ var RequestError = require("./util/request-error");
 
 function Connector(options) {
   // Forward to adapter
-  if (typeof options !== 'object' || typeof options.adapter !== 'function') {
+  if (typeof options !== 'object' || !options.adapter) {
     throw new Error("A request adapter must be provided when Connector is instantiated");
   }
   this.adapter = options.adapter;
@@ -41,12 +41,13 @@ function Connector(options) {
 }
 
 Connector.prototype.request = function request(options) {
-  return this.adapter(options).then(function(response) {
+  var req = this.adapter.stream(options);
+  req.on('response', function(response) {
     if (response.statusCode < 200 || response.statusCode > 299) {
-      throw new RequestError("Request error: "+response.statusCode+" "+response.statusText, response);
+      req.emit(new RequestError("Request error: "+response.statusCode+" "+response.statusText, response));
     }
-    return response;
   });
+  return options.stream ? req : this.adapter.toPromise(req);
 };
 
 Connector.prototype.urlTo = function(path, queryString) {
