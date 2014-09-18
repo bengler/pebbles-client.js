@@ -46,7 +46,10 @@ function stream(options) {
     req.write(JSON.stringify(options.body));
   }
   req.end();
-  
+
+  req.on('error', function(e) {
+    res.emit('error', e);
+  });
   return res;
 }
 
