@@ -8,8 +8,7 @@ var stringifyQS = require("../util/stringify-qs");
 var through = require("through");
 
 var defaultRequestHeaders = {
-  Accept: "application/json,text/plain,* / *",
-  'Content-Type': "application/json"
+  Accept: "application/json,text/plain,* / *"
 };
 
 var httpStatusTexts = require("../util/http-status");
@@ -36,6 +35,10 @@ function stream(options) {
     port: destUrl.port
   });
 
+  if (options.body) {
+    requestOpts.headers['Content-Type'] = "application/json";
+  }
+  
   var res = through();
   var req = http.request(requestOpts, function(response) {
     res.emit('response', adaptResponse(response));
