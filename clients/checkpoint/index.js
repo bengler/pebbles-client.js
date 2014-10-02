@@ -23,8 +23,8 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
   // Defaults
   opts || (opts = {});
   opts.pollInterval || (opts.pollInterval = 1000);
-  opts.display || (opts.display = 'popup');  
-  opts.timeout || (opts.timeout = 1000*60*2);  
+  opts.display || (opts.display = 'popup');
+  opts.timeout || (opts.timeout = 1000*60*2);
 
   if (provider == null) {
     throw new Error("Provider not selected")
@@ -47,10 +47,10 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
   var _this = this;
 
   return poll().then(done, function onRejected(error) {
-      done();
-      return Promise.reject(error);
-    });
-  
+    done();
+    return Promise.reject(error);
+  });
+
   function poll() {
     // Note: its important that we use setInterval and not setTimeout because Safari on IOS kills timeouts for good
     // when page is left in background. Intervals, however are resumed when the user returns to the page again.
@@ -131,7 +131,7 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
       }
     })
     .catch(function(err) {
-      console.warn("Warning: Unable to ensure session. Details: "+err.stack);
+      console.warn("Warning: Unable to ensure session. If you're on Safari on iOS 7 you may be in trouble. Details: "+err.stack);
     });
 });
 

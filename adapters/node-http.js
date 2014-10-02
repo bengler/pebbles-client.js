@@ -2,77 +2,100 @@
 
 var http = require("http");
 var url = require("url");
-var merge = require("deepmerge");
-var extend = require("util-extend");
+var extend = require("xtend");
 var stringifyQS = require("../util/stringify-qs");
-var through = require("through");
+var duplexify = require("duplexify");
+var HttpError = require("../util/http-error");
 
 var defaultRequestHeaders = {
   Accept: "application/json,text/plain,* / *"
 };
 
-var httpStatusTexts = require("../util/http-status");
-function adaptResponse(native) {
+module.exports.promise    = promise;
+module.exports.promisify  = promisify;
+module.exports.stream     = stream;
+
+// Wraps a duplex (req, res) stream behind a promise that resolves with the response on success, or rejects with
+// an error on failure.
+// If status code  < 200 or > 299 the promise is rejected with an http error
+// Also, if the content-type of the response is json, the `response.body` will be a parsed json object
+// Additionally an error is thrown if content type says json, but response body doesnt parse
+function promise(options) {
+
+  if (options.body) {
+    options.headers['Content-Type'] = options.headers['content-type'] || "application/json;charset=utf-8";
+  }
+
+  var req = stream(options);
+
+  if (options.body) {
+    req.write(typeof options.body === 'string' ? options.body : JSON.stringify(options.body));
+  }
+  req.end();
+
+  return promisify(req).then(function(response) {
+    // Do additional error handling on response
+    if (response.statusCode < 200 || response.statusCode > 299) {
+      throw new HttpError("Http error: "+response.statusCode+" "+response.statusText, response);
+    }
+    return response;
+  });
+}
+
+// Turns a duplex (req, res) stream into a promise
+function promisify(req) {
+  var response;
+  var body = '';
+  req.on('response', function(res) {
+    response = res;
+  });
+  req.on('data', function(chunk) {
+    body += chunk;
+  });
+  return new Promise(function(resolve, reject) {
+    req
+      .on('error', reject)
+      .on('end', function() {
+        resolve(adaptResponse(body, response));
+      });
+  });
+}
+
+// Adapts a native response to a common structure
+// Includes parsing of response body into json depending on the value of the content-type header
+function adaptResponse(rawBody, native) {
+
+  var contentType = native.headers['content-type'] && native.headers['content-type'].split(";")[0];
+
   return {
+    body: (contentType === 'application/json') ? JSON.parse(rawBody) : rawBody,
+    text: rawBody,
     statusCode: native.statusCode,
-    statusText: httpStatusTexts[native.statusCode],
+    statusText: http.STATUS_CODES[native.statusCode],
     headers: native.headers,
     _native: native
   };
 }
 
-module.exports.stream = stream;
-module.exports.toPromise = toPromise;
+function request(opts) {
+  var req = http.request(opts);
+  var duplex = duplexify(req);
+  req.on('error', duplex.emit.bind(duplex, 'error'));
+  req.on('response', duplex.setReadable.bind(duplex));
+  req.on('response', duplex.emit.bind(duplex, 'response'));
+  return duplex;
+}
 
 function stream(options) {
   var destUrl = url.parse(options.url, true, true);
-  var qs = (options.queryString || destUrl.query) ? stringifyQS(merge(destUrl.query, options.queryString || {})) : '';
-  var requestOpts = merge({}, {
+  var qs = (options.queryString || destUrl.query) ? stringifyQS(extend(destUrl.query, options.queryString || {})) : '';
+  var requestOpts = extend({}, {
     method: options.method.toUpperCase(),
-    headers: merge(defaultRequestHeaders, options.headers || {}),
-    path: destUrl.path + (qs ? '?'+qs : ''),
+    headers: extend(defaultRequestHeaders, options.headers || {}),
+    path: destUrl.pathname + (qs ? '?'+qs : ''),
     host: destUrl.host,
     port: destUrl.port
   });
 
-  if (options.body) {
-    requestOpts.headers['Content-Type'] = "application/json";
-  }
-  
-  var res = through();
-  var req = http.request(requestOpts, function(response) {
-    res.emit('response', adaptResponse(response));
-    response.pipe(res);
-  });
-  
-  if (options.body) {
-    req.write(JSON.stringify(options.body));
-  }
-  req.end();
-
-  req.on('error', function(e) {
-    res.emit('error', e);
-  });
-  return res;
-}
-
-function toPromise(req) {
-  var response, body = '';
-  req.on('response', function(res) {
-    response = res;
-  });
-
-  req.on('data', function(chunk) {
-    body += chunk;
-  });
-
-  return new Promise(function(resolve, reject) {
-    req.on('end', function() {
-      try {
-        body = JSON.parse(body);
-      } catch(e) {}
-      resolve(merge(response, {body: body}))
-    });
-    req.on('error', reject);
-  });
+  return request(requestOpts);
 }

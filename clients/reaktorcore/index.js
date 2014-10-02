@@ -1,6 +1,6 @@
 "use strict";
 
-var extend = require("util-extend");
+var extend = require("xtend");
 var Client = require("../../client");
 var inherits = require("inherits");
 

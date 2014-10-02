@@ -5,10 +5,9 @@ module.exports = Connector;
 var Service = require("./service");
 var Client = require("./client");
 
-var extend = require("util-extend");
+var extend = require("xtend");
+var merge = require("deepmerge");
 var url = require("url");
-var slice = [].slice;
-var RequestError = require("./util/request-error");
 
 /**
  * # Connector
@@ -32,6 +31,7 @@ function Connector(options) {
   if (typeof options !== 'object' || !options.adapter) {
     throw new Error("A request adapter must be provided when Connector is instantiated");
   }
+  this.requestOptions = options.requestOptions || {};
   this.adapter = options.adapter;
   this.baseUrl = options.baseUrl || '';
   this.clientClasses = options.clientClasses;
@@ -40,21 +40,18 @@ function Connector(options) {
   }
 }
 
+Connector.prototype._options = function _options() {
+  return {};
+};
+
 Connector.prototype.request = function request(options) {
-  var req = this.adapter.stream(options);
-  req.on('response', function(response) {
-    if (response.statusCode < 200 || response.statusCode > 299) {
-      req.emit(new RequestError("Request error: "+response.statusCode+" "+response.statusText, response));
-    }
-  });
-  return options.stream ? req : this.adapter.toPromise(req);
+  options = merge(this.requestOptions, merge(this._options(), options));
+  return options.stream ? this.adapter.stream(options) : this.adapter.promise(options);
 };
 
 Connector.prototype.urlTo = function(path, queryString) {
   var parsedUrl = url.parse(this.baseUrl, !!queryString);
-  if (queryString) {
-    parsedUrl.query = parsedUrl.query ? extend(parsedUrl.query, queryString) : queryString;
-  }
+  parsedUrl.query = extend(this.requestOptions.queryString || {}, queryString || {}, parsedUrl.query || {});
   parsedUrl.pathname = path;
   return url.format(parsedUrl);
 };
