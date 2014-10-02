@@ -8,7 +8,7 @@ var duplexify = require("duplexify");
 var HttpError = require("../util/http-error");
 
 var defaultRequestHeaders = {
-  Accept: "application/json,text/plain,* / *"
+  accept: "application/json,text/plain,* / *"
 };
 
 module.exports.promise    = promise;
@@ -23,7 +23,8 @@ module.exports.stream     = stream;
 function promise(options) {
 
   if (options.body) {
-    options.headers['Content-Type'] = options.headers['content-type'] || "application/json;charset=utf-8";
+    options.headers = options.headers || {};
+    options.headers['content-type'] = options.headers['content-type'] || "application/json;charset=utf-8";
   }
 
   var req = stream(options);
