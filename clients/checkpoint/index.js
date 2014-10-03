@@ -107,6 +107,9 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
   return this.get('check-session')
     .then(function(response) {
 
+      if (!(typeof response.body !== 'object') || !response.body.hasOwnProperty('ok')) {
+        throw new Error("Unexpected response from checkpoint. Expected a JSON object with an `ok` property, instead got the "+(typeof response.body)+" "+response.body);
+      }
       // A session cookie was already set, all good 
       if (response.body.ok) {
         return true;
