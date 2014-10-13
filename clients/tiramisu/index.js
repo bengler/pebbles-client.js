@@ -3,7 +3,7 @@
 var Client = require("../../client");
 var inherits = require("inherits");
 var JSONStream = require('json-stream');
-var through = require('through');
+var through = require('through2');
 
 module.exports = TiramisuClient;
 
@@ -40,8 +40,5 @@ TiramisuClient.prototype.upload = function (endpoint, file) {
 
   req.end(formData);
 
-  return req.pipe(new JSONStream()).pipe(through(normalizeProgress)).pipe(through(function(data) {
-    console.log(data);
-    this.queue(data);
-  }));
+  return req.pipe(new JSONStream()).pipe(through(normalizeProgress));
 };
