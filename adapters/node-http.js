@@ -80,7 +80,8 @@ function adaptResponse(rawBody, native) {
 
 function request(opts) {
   var req = http.request(opts);
-  var duplex = duplexify(req);
+  var duplex = duplexify.obj(req);
+  duplex.xhr = req.xhr;
   req.on('error', duplex.emit.bind(duplex, 'error'));
   req.on('response', duplex.setReadable.bind(duplex));
   req.on('response', duplex.emit.bind(duplex, 'response'));
