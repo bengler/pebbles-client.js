@@ -3,7 +3,7 @@
 var Client = require("../../client");
 var inherits = require("inherits");
 var JSONStream = require('json-stream');
-var through = require('through2');
+var through = require('through');
 
 module.exports = TiramisuClient;
 

@@ -15,8 +15,8 @@
     "duplexify": "^3.2.0",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
-    "xtend": "^4.0.0",
-    "through2": "^0.6.2"
+    "through": "^2.3.6",
+    "xtend": "^4.0.0"
   },
   "devDependencies": {
     "es6-promise": "^1.0.0",
