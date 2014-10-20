@@ -30,10 +30,19 @@ function TiramisuClient() {
 
 inherits(TiramisuClient, Client);
 
-TiramisuClient.prototype.upload = function (endpoint, file, options) {
+TiramisuClient.prototype.uploadImage = function (endpoint, file, options) {
+  return this.uploadFile(endpoint, file)
+    .pipe(this.waitFor(options.waitFor))
+    .pipe(normalizeProgress())
+};
 
-  options = options || {};
-  
+TiramisuClient.prototype.uploadFile = function (endpoint, file) {
+  return this.upload(endpoint, file)
+    .pipe(normalizeProgress());
+};
+
+TiramisuClient.prototype.upload = function (endpoint, file) {
+
   var formData = new window.FormData();
   formData.append('file', file);
 
@@ -46,7 +55,7 @@ TiramisuClient.prototype.upload = function (endpoint, file, options) {
 
   req.end(formData);
 
-  return req.pipe(new JSONStream()).pipe(this.waitFor(options.waitFor)).pipe(normalizeProgress());
+  return req.pipe(new JSONStream());
 };
 
 TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
