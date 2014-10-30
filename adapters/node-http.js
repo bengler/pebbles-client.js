@@ -66,7 +66,7 @@ function promisify(req) {
 // Includes parsing of response body into json depending on the value of the content-type header
 function adaptResponse(rawBody, native) {
 
-  var contentType = native.headers['content-type'] && native.headers['content-type'].split(";")[0];
+  var contentType = native.headers && native.headers['content-type'] && native.headers['content-type'].split(";")[0];
 
   return {
     body: (contentType === 'application/json') ? JSON.parse(rawBody) : rawBody,
