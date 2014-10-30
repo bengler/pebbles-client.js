@@ -11,7 +11,7 @@
   "author": "Bjørge Næss",
   "license": "MIT",
   "dependencies": {
-    "deepmerge": "^0.2.7",
+    "deep-extend": "^0.3.2",
     "duplexify": "^3.2.0",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",

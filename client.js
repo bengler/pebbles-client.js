@@ -3,7 +3,7 @@
 module.exports = Client;
 
 var extend = require("xtend");
-var merge = require("deepmerge");
+var merge = require("deep-extend");
 
 // A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.

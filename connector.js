@@ -6,7 +6,7 @@ var Service = require("./service");
 var Client = require("./client");
 
 var extend = require("xtend");
-var merge = require("deepmerge");
+var merge = require("deep-extend");
 var url = require("url");
 
 /**
