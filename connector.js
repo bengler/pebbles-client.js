@@ -6,7 +6,7 @@ var Service = require("./service");
 var Client = require("./client");
 
 var extend = require("xtend");
-var merge = require("deep-extend");
+var deepExtend = require("deep-extend");
 var url = require("url");
 
 /**
@@ -45,7 +45,7 @@ Connector.prototype._options = function _options() {
 };
 
 Connector.prototype.request = function request(options) {
-  options = merge(this.requestOptions, merge(this._options(), options));
+  options = deepExtend({}, this.requestOptions, this._options(), options);
   return options.stream ? this.adapter.stream(options) : this.adapter.promise(options);
 };
 

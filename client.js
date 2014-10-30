@@ -3,7 +3,7 @@
 module.exports = Client;
 
 var extend = require("xtend");
-var merge = require("deep-extend");
+var deepExtend = require("deep-extend");
 
 // A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.
@@ -16,7 +16,7 @@ function Client(options) {
 }
 
 Client.prototype.urlTo = function urlTo(endpoint, queryString) {
-  return this.connector.urlTo(this.service.pathTo(endpoint), merge(this.requestOptions.queryString || {}, queryString || {}));
+  return this.connector.urlTo(this.service.pathTo(endpoint), deepExtend({}, this.requestOptions.queryString || {}, queryString || {}));
 };
 
 Client.prototype.request = function request(options) {
@@ -27,7 +27,7 @@ Client.prototype.request = function request(options) {
   if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
 
   // Delegate the actual request to the connector
-  return this.connector.request(merge(this.requestOptions, extend(options, {
+  return this.connector.request(deepExtend({}, this.requestOptions, extend(options, {
     url: this.urlTo(options.endpoint)
   })));
 };
