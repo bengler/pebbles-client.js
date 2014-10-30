@@ -91,12 +91,17 @@ function request(opts) {
 function stream(options) {
   var destUrl = url.parse(options.url, true, true);
   var qs = (options.queryString || destUrl.query) ? stringifyQS(extend(destUrl.query, options.queryString || {})) : '';
+
+  var withCredentials = options.hasOwnProperty('withCredentials') ? options.withCredentials :
+    (typeof document !== 'undefined' && document.location && document.location.host !== destUrl.host);
+
   var requestOpts = extend({}, {
     method: options.method.toUpperCase(),
     headers: extend(defaultRequestHeaders, options.headers || {}),
     path: destUrl.pathname + (qs ? '?'+qs : ''),
     host: destUrl.host,
-    port: destUrl.port
+    port: destUrl.port,
+    withCredentials: withCredentials
   });
 
   return request(requestOpts);
