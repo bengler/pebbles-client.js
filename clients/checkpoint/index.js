@@ -34,7 +34,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
   params.display= opts.display;
 
   if (opts.redirectTo) {
-    params.redirect_to = encodeURIComponent(opts.redirectTo);
+    params.redirect_to = opts.redirectTo;
   }
 
   var url = this.urlTo("/login/" + provider, params);
