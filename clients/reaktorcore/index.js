@@ -1,58 +1,37 @@
+// This is the pebbles client class for the harlem pebble.
+// Its a subclass of a pebbles-client/Client class and can be used like any ordinary client instance 
 "use strict";
 
-var extend = require("xtend");
-var Client = require("../../client");
 var inherits = require("inherits");
+var Client = require("../../client");
 
-function hasCapability(role, capability) {
-  return role.capabilities.indexOf(capability) > -1;
-}
-
-function ReaktorCoreClient(opts) {
+function ReaktorCoreClient() {
   Client.apply(this, arguments);
-  opts || (opts = {});
-  if (!(opts.realm && opts.publication)) {
-    throw new Error("Reaktor Core client requires both realm and publication!");
-  }
-  this.realm = opts.realm;
-  this.publication = opts.publication;
-  this.upgraders = {};
 }
 inherits(ReaktorCoreClient, Client);
 
-ReaktorCoreClient.prototype.getRole = function getRole() {
-  return this.get("/roles/"+this.realm+"/"+this.publication+"/me").then(function(response) {
-    return response.body;
+ReaktorCoreClient.prototype.getRole = function getRole(realm, path) {
+  return this.get("/roles/" + realm + "/" + (path || '*') + "/me");
+};
+
+ReaktorCoreClient.prototype.getUpgradeStateForCapability = function getUpgradeStateForCapability(capability, realm, path) {
+  return this.getRole(realm, path).then(function(response) {
+    var role = response.body;
+    var hasCapability = role.capabilities.indexOf(capability) > -1;
+
+    if (!hasCapability && !role.upgrades[capability]) {
+      throw new Error("No upgrade path for capability "+JSON.stringify(capability)+". This is most likely because the capability is invalid.");
+    }
+    return {
+      role: role,
+      hasCapability: hasCapability,
+      nextUpgrade: role.upgrades[capability] && role.upgrades[capability][0],
+      // note: we don't know the entire upgrade path.
+      // i.e the user may not be logged in and only after login we may know the missing upgrades
+      knownUpgrades: role.upgrades[capability]
+    }
   });
 };
 
-ReaktorCoreClient.prototype.setUpgrader = function setUpgrader(upgrade, upgrader) {
-  this.upgraders[upgrade] = upgrader;
-};
-
-ReaktorCoreClient.prototype.upgrade = function upgrade(upgradeName, opts) {
-  var upgrader = this.upgraders[upgradeName];
-  if (!upgrader) throw Error("No registered upgrade `"+upgradeName+"` for ReaktorCore client. Cannot continue.");
-  return upgrader(opts);
-};
-
-ReaktorCoreClient.prototype.requireCapability = function requireCapability(capability, opts) {
-  var _this = this;
-  this.getRole().then(function(role) {
-    if (hasCapability(role, capability)) {
-      // Current user has got the requested capability!
-      return role;
-    }
-    if (!role.upgrades[capability]) {
-      return Promise.reject(new Error("Current user has no upgrade path for capability `"+capability+"`"));
-    }
-    // Level up!
-    var upgradeName = role.upgrades[capability][0];
-    return _this.upgrade(upgradeName, opts[upgradeName] || {}).then(function() {
-      // Role should now have been upgraded one level, proceed to next level (or finish) by calling requireCapability again
-      return _this.requireCapability(capability, opts);
-    });
-  });
-};
 
 module.exports = ReaktorCoreClient;
