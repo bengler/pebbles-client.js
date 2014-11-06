@@ -5,7 +5,7 @@ var url = require("url");
 var extend = require("xtend");
 var stringifyQS = require("../util/stringify-qs");
 var duplexify = require("duplexify");
-var HttpError = require("../util/http-error");
+var toHttpError = require("../util/http-error").toHttpError;
 
 var defaultRequestHeaders = {
   accept: "application/json,text/plain,* / *"
@@ -37,7 +37,7 @@ function promise(options) {
   return promisify(req).then(function(response) {
     // Do additional error handling on response
     if (response.statusCode < 200 || response.statusCode > 299) {
-      throw new HttpError("Http error: "+response.statusCode+" "+response.statusText, response);
+      throw toHttpError(new Error("HTTP error: "+response.statusCode+" "+response.statusText), response);
     }
     return response;
   });
