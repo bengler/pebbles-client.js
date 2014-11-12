@@ -45,10 +45,10 @@ function promise(options) {
 
 // Turns a duplex (req, res) stream into a promise
 function promisify(req) {
-  var response;
+  var res;
   var body = '';
-  req.on('response', function(res) {
-    response = res;
+  req.on('response', function(_res) {
+    res = _res;
   });
   req.on('data', function(chunk) {
     body += chunk;
@@ -57,25 +57,31 @@ function promisify(req) {
     req
       .on('error', reject)
       .on('end', function() {
-        resolve(adaptResponse(body, response));
+
+        var contentType = res.headers && res.headers['content-type'] && res.headers['content-type'].split(";")[0];
+
+        var parsed;
+
+        if (contentType === 'application/json') {
+          try {
+            parsed = JSON.parse(body);
+          }
+          catch(e) {
+            e.message = e.message + ". Invalid JSON in response from server: "+body;
+            return reject(e);
+          }
+        }
+
+        resolve({
+          body: parsed || body,
+          text: body,
+          statusCode: res.statusCode,
+          statusText: http.STATUS_CODES[res.statusCode],
+          headers: res.headers,
+          _native: res
+        });
       });
   });
-}
-
-// Adapts a native response to a common structure
-// Includes parsing of response body into json depending on the value of the content-type header
-function adaptResponse(rawBody, native) {
-
-  var contentType = native.headers && native.headers['content-type'] && native.headers['content-type'].split(";")[0];
-
-  return {
-    body: (contentType === 'application/json') ? JSON.parse(rawBody) : rawBody,
-    text: rawBody,
-    statusCode: native.statusCode,
-    statusText: http.STATUS_CODES[native.statusCode],
-    headers: native.headers,
-    _native: native
-  };
 }
 
 function request(opts) {
