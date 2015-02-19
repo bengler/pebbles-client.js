@@ -1,18 +1,18 @@
 "use strict";
 
 var inherits = require("inherits");
-
 var Connector = require("./connector");
 
-var nodeAdapter = require("./adapters/node");
-
-function NodeConnector(config) {
-  config.adapter = nodeAdapter;
-  Connector.call(this, config);
+var adapter = require("./adapters/node-http");
+function NodeConnector(options) {
+  options.adapter = adapter;
+  Connector.call(this, options);
 }
 
 inherits(NodeConnector, Connector);
 
-exports.Service = require("./service");
-exports.Client = require("./client");
-exports.Connector = NodeConnector;
+module.exports = {
+  Service: require("./service"),
+  Client: require("./client"),
+  Connector: NodeConnector
+};

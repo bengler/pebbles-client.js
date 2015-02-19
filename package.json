@@ -1,29 +1,30 @@
 {
   "name": "pebbles-client",
   "version": "0.0.46",
+  "version": "1.0.22",
   "private": true,
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
-  "browser": "./index.browser.js",
+  "browser": "./index.js",
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
   "author": "Bjørge Næss",
   "license": "MIT",
-  "devDependencies": {
-    "mocha": "~1.14.0"
-  },
   "dependencies": {
-    "util-extend": "~1.0.1",
-    "request": "~2.27.0",
-    "sinon": "~1.7.3",
-    "xhr": "~1.2.3",
+    "deep-extend": "^0.3.2",
+    "duplexify": "^3.2.0",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
-    "through": "~2.3.4",
-    "deepmerge": "~0.2.7",
-    "nock": "~0.27.1",
-    "jquery": "~2.1.0",
-    "mock": "~0.1.1"
+    "through": "^2.3.6",
+    "xtend": "^4.0.0"
+  },
+  "devDependencies": {
+    "es6-promise": "^1.0.0",
+    "es6-shim": "^0.16.0",
+    "mocha": "^1.21.4",
+    "mock": "~0.1.1",
+    "sinon": "^1.10.3",
+    "through2": "^0.6.3"
   }
 }

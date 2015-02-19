@@ -1,1 +1,1 @@
---recursive
+--recursive --require es6-shim

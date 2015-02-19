@@ -1,41 +1,39 @@
 var assert = require("assert")
 var mock = require("mock");
+var through = require("through2");
+// Can't use immutable to add properties to a stream object
+var extend = require("xtend/mutable");
+var http = require("http");
 
-describe("Request HTTP Adapter", function () {
-  it("requests", function (done) {
-    var nativeResponse = {
-      httpVersion: '1.1',
-      httpVersionMajor: 1,
-      httpVersionMinor: 1,
-      headers: {
-        "content-type": "application/json"
-      },
-      statusCode: '200'
-    };
-
-    var mockResponse = {};
-
-    var adapter = mock("../../adapters/node", {
-      request: function (options, callback) {
-        assert(typeof callback == 'function', "Expected callback to be function")
-
-        assert.equal(options.json, true);
-        assert.equal(options.method, 'get');
-        assert.equal(options.agent, false);
-        assert.equal(options.url, 'http://pebblestack.org/foo');
-
-        callback(null, nativeResponse, mockResponse)
-      }
+describe("Node HTTP Adapter", function () {
+  it("requests", function () {
+    var nativeResponse = extend(through(), {
+        headers: {},
+        statusCode: 200,
+        statusText: 'OK'
     });
 
-    adapter({method: 'get', url: "http://pebblestack.org/foo"}, function (err, body, response) {
-      assert.equal(err, null);
-      assert.equal(body, mockResponse);
+    var adapter = mock("../../adapters/node-http", {
+      http: extend(http, {
+        request: function (options) {
+          var mockReq = through();
+          process.nextTick(function() {
+            mockReq.emit('response', nativeResponse);
+            process.nextTick(function() {
+              nativeResponse.push("foo");
+              nativeResponse.end();
+            });
+          });
+          return mockReq;
+        }
+      })
+    });
+
+    return adapter.promise({method: 'get', url: "http://pebblestack.org/foo"}).then(function (response) {
+      assert.equal(response.body, "foo");
       assert.equal(response.statusCode, 200);
       assert.equal(response.statusText, "OK");
-      assert.equal(response.headers['content-type'], "application/json");
-      assert.equal(response.native, nativeResponse);
-      done()
+      assert.equal(response._native, nativeResponse);
     })
   });
 });

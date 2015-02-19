@@ -1,79 +1,79 @@
 "use strict";
 
-var slice = [].slice;
-
 module.exports = Client;
 
-var extend = require("util-extend");
+var extend = require("xtend");
+var deepExtend = require("deep-extend");
 
-function isObject(val) {
-  return typeof val === 'object' && val !== null;
-}
-function isString(val) {
-  return typeof val === 'string'
-}
-
-function normalizeArgs(args, method, secondArg) {
-  var options = { method: method };
-  if (isObject(args[0])) {
-    // (options, [cb])
-    options = args[0];
-  } else {
-    // (endpoint, [queryParams|body], [opts], [cb])
-    options.endpoint = args[0];
-    if (isObject(args[1])) {
-      options[secondArg] = args[1];
-    }
-    if (isObject(args[2])) {
-      extend(options, args[2]);
-    }
-  }
-  var cb = args[args.length - 1];
-  return typeof cb === 'function' ? [options, cb] : [options];
-}
 // A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.
-function Client(opts) {
-  if (!opts) throw Error("No options given");
-  if (!opts.service) throw Error("No service given");
-  this.service = opts.service;
-  this.connector = opts.connector;
+function Client(options) {
+  if (!options) throw Error("No options given");
+  if (!options.service) throw Error("No service given");
+  this.requestOptions = options.requestOptions || {};
+  this.service = options.service;
+  this.connector = options.connector;
 }
 
-Client.prototype.request = function request(options, callback) {
+Client.prototype.urlTo = function urlTo(endpoint, queryString) {
+  return this.connector.urlTo(this.service.pathTo(endpoint), deepExtend({}, this.requestOptions.queryString || {}, queryString || {}));
+};
+
+Client.prototype.request = function request(options) {
   if (typeof options === 'string') {
     options = { endpoint: options }
   }
+
   if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
-  var opts = extend({}, options);
-  opts.url = this.urlTo(options.endpoint);
-  delete opts.endpoint; // Not needed anymore
+
   // Delegate the actual request to the connector
-  return this.connector.request.apply(this.connector, [opts].concat(slice.call(arguments, 1)));
+  return this.connector.request(deepExtend({}, this.requestOptions, extend(options, {
+    url: this.urlTo(options.endpoint)
+  })));
 };
 
-Client.prototype.urlTo = function urlTo(endpoint, queryString) {
-  return this.connector.urlTo(this.service.pathTo(endpoint), queryString);
+Client.prototype.stream = function stream() {
+  return new StreamWrapper(this);
 };
 
-Client.prototype.get = function get(endpoint, queryString, opts, cb) {
-  return this.request.apply(this, normalizeArgs(arguments, 'get', 'queryString'));
+Client.prototype.get = function get(endpoint, queryString, options) {
+  return this.request(extend(options, {
+    method: 'get',
+    endpoint: endpoint,
+    queryString: queryString || {}
+  }));
 };
 
-Client.prototype.del = function del(endpoint, queryString, opts, cb) {
-  return this.request.apply(this, normalizeArgs(arguments, 'delete', 'queryString'));
+Client.prototype.del = function del(endpoint, queryString, options) {
+  return this.request(extend(options, {
+    method: 'delete',
+    endpoint: endpoint,
+    queryString: queryString || {}
+  }));
 };
 
-Client.prototype.post = function post(endpoint, body, opts, cb) {
-  return this.request.apply(this, normalizeArgs(arguments, 'post', 'body'));
+Client.prototype.post = function post(endpoint, body, options) {
+  return this.request(extend(options, {
+    method: 'post',
+    body: body,
+    endpoint: endpoint
+  }));
 };
 
-Client.prototype.put = function put(endpoint, body, opts, cb) {
-  return this.request.apply(this, normalizeArgs(arguments, 'put', 'body'));
+Client.prototype.put = function put(endpoint, body, options) {
+  return this.request(extend(options, {
+    endpoint: endpoint,
+    method: 'put',
+    body: body
+  }));
 };
 
-Client.prototype.resource = function(basePath, options) {
-  var opts = extend(extend({client: this}, this.service.resourceSettings), options); 
-  var Resource = require("./resource");
-  return new Resource(basePath, opts);
-};
+function StreamWrapper(client) {
+  this.client = client;
+}
+
+['request', 'get', 'del', 'post', 'put'].forEach(function(method) {
+  StreamWrapper.prototype[method] = function(_, __, options) {
+    return this.client[method](_, __, extend({stream: true}, options));
+  };
+});
