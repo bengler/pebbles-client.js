@@ -4,7 +4,9 @@
   "private": true,
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
-  "browser": "./index.js",
+  "browser": {
+    "http": "http-browserify"
+  },
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
@@ -13,6 +15,7 @@
   "dependencies": {
     "deep-extend": "^0.3.2",
     "duplexify": "^3.2.0",
+    "http-browserify": "git://github.com/bjoerge/http-browserify#fix-withcredentials-bug",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
     "through": "^2.3.6",
