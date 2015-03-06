@@ -17,8 +17,6 @@ module.exports.configure = configure;
 function configure(opts) {
   opts = opts || {};
 
-  var PromiseImpl = opts.promiseImpl || Promise;
-
   return {
     promise: promise,
     promisify: promisify,
@@ -63,6 +61,8 @@ function configure(opts) {
     req.on('data', function (chunk) {
       body += chunk;
     });
+    var PromiseImpl = opts.promiseImpl || Promise;
+
     return new PromiseImpl(function (resolve, reject) {
       req
         .on('error', reject)
