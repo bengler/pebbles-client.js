@@ -6,6 +6,10 @@
   "browser": {
     "http": "http-browserify"
   },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/bengler/pebbles-client.js.git"
+  },
   "scripts": {
     "test": "node_modules/.bin/mocha"
   },
