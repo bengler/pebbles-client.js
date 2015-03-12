@@ -52,11 +52,11 @@ module.exports = function request(options, callback) {
   var requestOpts = merge({}, {
     method: options.method,
     uri: options.url,
-    timeout: options.timeout || 5000,
+    timeout: options.timeout || 1000 * 60 * 5,
     headers: merge(defaultHeaders, options.headers || {})
   });
 
-  var destUrl = url.parse(requestOpts.uri, true, true)
+  var destUrl = url.parse(requestOpts.uri, true, true);
   if (options.queryString) {
     destUrl.search = stringifyQS(merge(destUrl.query, options.queryString))
     requestOpts.uri = url.format(destUrl);    
