@@ -149,11 +149,15 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
           } catch (e) {
             // Ignore
           }
+          var domain = url.parse(_this.connector.baseUrl).domain;
           var error = new Error(
             "Did return from an attempt to visit "+_this.connector.baseUrl+", but cookies is still not sent properly. " +
-            "This means the browser you are using is most likely blocking cookies from the domain of "+_this.connector.baseUrl+"."
+            "This means the browser you are using is most likely blocking cookies from the domain "+domain+"."
           );
           error.code = "THIRDPARTY_COOKIES_BLOCKED";
+          error.data = {
+            domain: domain
+          };
           throw error;
         }
 
