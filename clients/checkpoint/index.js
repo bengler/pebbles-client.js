@@ -3,7 +3,7 @@
 var Client = require("../../client");
 var inherits = require("inherits");
 
-
+var url = require("url");
 var utils = require("./utils");
 var browserOnly = utils.browserOnly;
 var LoginError = require("./login-error");
@@ -123,19 +123,45 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
   });
 });
 
+var CHECKED_PARAM = "--checkpoint-session-checked";
+
 CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() {
+
+  var currentUrlParsed = url.parse(document.location.href, true);
+  delete currentUrlParsed.search;
+
+  var isReturnedFromRedirect = currentUrlParsed.query[CHECKED_PARAM];
+
   var _this = this;
-  this.checkSession()
+  return this.checkSession()
     .then(function(sessionReady) {
       if (!sessionReady) {
         // Browser is not sending any cookies to the domain. Booo :-(
         // We need to navigate to checkpoints /ensure-session endpont on the domain, specifying where to redirect after
-        document.location.href = _this.urlTo("check-session", { redirect_to: document.location.href })
+
+        if (isReturnedFromRedirect) {
+          // We have returned from a redirect to checkpoint/v1/check-session
+
+          // Clean up after us (so that the _session_checked param is not passed along)
+          delete currentUrlParsed.query[CHECKED_PARAM];
+          try {
+            window.history.replaceState({}, null, url.format(currentUrlParsed));
+          } catch (e) {
+            // Ignore
+          }
+          var error = new Error(
+            "Did return from an attempt to visit "+_this.connector.baseUrl+", but cookies is still not sent properly. " +
+            "This means the browser you are using is most likely blocking cookies from the domain of "+_this.connector.baseUrl+"."
+          );
+          error.code = "THIRDPARTY_COOKIES_BLOCKED";
+          throw error;
+        }
+
+        currentUrlParsed.query[CHECKED_PARAM] = true;
+
+        document.location.href = _this.urlTo("check-session", { redirect_to: url.format(currentUrlParsed) })
       }
     })
-    .catch(function(err) {
-      console.warn("Warning: Unable to ensure session. If you're on Safari on iOS 7 you may be in trouble. Details: "+err.stack);
-    });
 });
 
 module.exports = CheckpointClient;
