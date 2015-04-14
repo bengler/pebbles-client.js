@@ -118,6 +118,7 @@ function stream(options) {
     path: destUrl.pathname + (qs ? '?' + qs : ''),
     host: destUrl.host,
     port: destUrl.port,
+    protocol: destUrl.protocol,
     withCredentials: withCredentials
   });
 
