@@ -2,6 +2,10 @@ var assert = require("assert")
 var stringifyQs = require("../util/stringify-qs");
 
 describe("stringify", function () {
+  it("returns empty string for empty object", function() {
+    assert.equal(stringifyQs({}), "");
+  });
+
   it("stringifies shallow", function() {
     assert.equal(stringifyQs({foo: 'bar'}), "foo=bar");
   });

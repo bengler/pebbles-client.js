@@ -4,6 +4,7 @@ module.exports = Connector;
 
 var Service = require("./service");
 var Client = require("./client");
+var stringifyQS = require("./util/stringify-qs");
 
 var extend = require("xtend");
 var deepExtend = require("deep-extend");
@@ -14,17 +15,17 @@ var url = require("url");
  *
  * A connector represents a set of service clients running on a given baseUrl.
  * It must be instantiated with an HTTP request adapter in order to perform the actual requests.
- * 
+ *
  * ## Usage:
- * 
+ *
  * ```js
  * new Connector({
  *   baseUrl: 'http://pebblestack.org',
  *   adapter: nodeAdapter
  * });
- * 
+ *
  * ```
-*/
+ */
 
 function Connector(options) {
   // Forward to adapter
@@ -50,10 +51,19 @@ Connector.prototype.request = function request(options) {
 };
 
 Connector.prototype.urlTo = function(path, queryString) {
-  var parsedUrl = url.parse(this.baseUrl, !!queryString);
-  parsedUrl.query = extend(this.requestOptions.queryString || {}, queryString || {}, parsedUrl.query || {});
-  parsedUrl.pathname = path;
-  return url.format(parsedUrl);
+
+  var baseUrl = url.parse(this.baseUrl, true, true);
+  var parsedPath = url.parse(path, true, true);
+
+  var query = extend(baseUrl.query || {}, parsedPath.query, queryString || {});
+
+  return url.format({
+    pathname: parsedPath.pathname,
+    host: baseUrl.host,
+    search: stringifyQS(query),
+    port: baseUrl.port,
+    protocol: baseUrl.protocol
+  });
 };
 
 Connector.prototype.use = function use(mixed, opts) {
@@ -73,7 +83,7 @@ Connector.prototype.use = function use(mixed, opts) {
     }
     return this;
   }
-  
+
   var version = opts.version;
   if (typeof opts !== 'object') {
     version = opts;
