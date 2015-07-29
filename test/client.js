@@ -11,7 +11,7 @@ describe("Client", function () {
     var mockAdapter = {
       stream: function() {
       },
-      promise: function() {
+      promise: function() {
         spy.apply(null, arguments);
       }
     };
@@ -20,7 +20,7 @@ describe("Client", function () {
     var client = new Client({service: new Service("kudu", 1), connector: connector});
     client.get("/foo");
     assert(spy.calledOnce);
-    assert(spy.firstCall.args, ["get", "/api/kudu/v1/foo"])    
+    assert(spy.firstCall.args, ["get", "/api/kudu/v1/foo"])
   });
 
   it("Passes through request params", function() {
@@ -28,7 +28,7 @@ describe("Client", function () {
     var mockAdapter = {
       stream: function() {
       },
-      promise: function() {
+      promise: function() {
         spy.apply(null, arguments);
       }
     };
@@ -37,6 +37,6 @@ describe("Client", function () {
     client.get("/foo", {foo: "bar"});
 
     assert(spy.calledOnce);
-    assert.deepEqual(spy.firstCall.args, [{queryString: {foo: "bar"}, method: "get", endpoint: "/foo", url: "/api/kudu/v1/foo"}])    
+    assert.deepEqual(spy.firstCall.args, [{queryString: {foo: "bar"}, method: "get", endpoint: "/foo", url: "/api/kudu/v1/foo"}])
   })
 });

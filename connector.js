@@ -41,12 +41,8 @@ function Connector(options) {
   }
 }
 
-Connector.prototype._options = function _options() {
-  return {};
-};
-
 Connector.prototype.request = function request(options) {
-  options = deepExtend({}, this.requestOptions, this._options(), options);
+  options = deepExtend({}, this.requestOptions, options);
   return options.stream ? this.adapter.stream(options) : this.adapter.promise(options);
 };
 
@@ -55,7 +51,7 @@ Connector.prototype.urlTo = function(path, queryString) {
   var baseUrl = url.parse(this.baseUrl, true, true);
   var parsedPath = url.parse(path, true, true);
 
-  var query = extend(baseUrl.query || {}, parsedPath.query, queryString || {});
+  var query = extend(this.requestOptions.queryString || {}, baseUrl.query || {}, parsedPath.query, queryString || {});
 
   return url.format({
     pathname: parsedPath.pathname,
@@ -89,7 +85,9 @@ Connector.prototype.use = function use(mixed, opts) {
     version = opts;
   }
 
-  if (typeof version === 'undefined' || +version !== version) throw new Error("Invalid version of "+mixed+": "+version);
+  if (typeof version === 'undefined' || +version !== version) {
+    throw new Error("Invalid version of " + mixed + ": " + version);
+  }
 
   var service = new Service(mixed, version, opts);
 

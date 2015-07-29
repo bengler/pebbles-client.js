@@ -8,12 +8,12 @@ var through = require('through');
 module.exports = TiramisuClient;
 
 var normalizers = {
-  uploading: function(p)    { return p * 0.6      },
-  received: function(p)     { return 60           },
+  uploading: function(p) { return p * 0.6 },
+  received: function(p) { return 60 },
   transferring: function(p) { return 60 + p * 0.2 },
-  transferred: function(p)  { return 80           },
-  ready: function(p)        { return 80 + p * 0.2 },
-  completed: function(p)    { return 100          },
+  transferred: function(p) { return 80 },
+  ready: function(p) { return 80 + p * 0.2 },
+  completed: function(p) { return 100 }
 };
 
 function normalizeProgress() {
@@ -64,10 +64,11 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
   var waitForCount;
 
   var stream = through(write, end);
-  
+
   function write(event) {
     if (event.status == 'completed') {
-      return completedEvent = event;
+      completedEvent = event;
+      return;
     }
     stream.queue(event);
   }
@@ -78,7 +79,7 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
 
     pendingVersions = completedEvent.metadata.versions;
     if (versionMatchFn) {
-      pendingVersions = pendingVersions.slice(0, pendingVersions.findIndex(versionMatchFn)+1);
+      pendingVersions = pendingVersions.slice(0, pendingVersions.findIndex(versionMatchFn) + 1);
     }
     waitForCount = pendingVersions.length;
 
@@ -101,14 +102,14 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
         return poll();
       })
   }
-  
   return stream;
 };
 
 function waitForVersion(version, opts) {
   opts = opts || {};
-  opts.timeout = opts.timeout || 1000*60*5;
+  opts.timeout = opts.timeout || 1000 * 60 * 5;
   opts.pollInterval = opts.pollInterval || 1000;
+
   function poll() {
     return _checkS3(version.url)
       .then(function () {
@@ -118,8 +119,8 @@ function waitForVersion(version, opts) {
         return delay(opts.pollInterval).then(poll);
       });
   }
-  
-  return timeout(poll(), opts.timeout, "Transcoding timed out after "+opts.timeout+"ms");
+
+  return timeout(poll(), opts.timeout, "Transcoding timed out after " + opts.timeout + "ms");
 }
 
 // A few util functions
@@ -128,7 +129,7 @@ function _checkS3(url) {
   return new Promise(function(resolve, reject) {
     req.open('HEAD', url, true);
     req.onload = function() {
-      req.status == 403 ? reject() : resolve();
+      if (req.status == 403) { reject() } else { resolve() }
     };
     req.onerror = reject;
     req.send();

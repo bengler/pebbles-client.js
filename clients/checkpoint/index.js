@@ -21,25 +21,25 @@ inherits(CheckpointClient, Client);
 CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
 
   // Defaults
-  opts || (opts = {});
-  opts.pollInterval || (opts.pollInterval = 1000);
-  opts.display || (opts.display = 'popup');
-  opts.timeout || (opts.timeout = 1000*60*2);
+  opts = opts || {};
+  opts.pollInterval = opts.pollInterval > 100 ? opts.pollInterval : 1000;
+  opts.display = opts.display || 'popup';
+  opts.timeout = opts.timeout || 1000 * 60 * 5;
 
   if (provider == null) {
     throw new Error("Provider not selected")
   }
 
   var params = {};
-  params.display= opts.display;
+  params.display = opts.display;
 
   if (opts.redirectTo) {
-    params.redirect_to = opts.redirectTo;
+    params.redirect_to = opts.redirectTo; // eslint-disable-line camelcase
   }
 
-  var url = this.urlTo("/login/" + provider, params);
+  var loginEndpoint = this.urlTo("/login/" + provider, params);
 
-  var win = window.open(url, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
+  var win = window.open(loginEndpoint, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
 
   this._registerFocusMessageHandler();
 
@@ -108,17 +108,17 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
     .then(function(response) {
 
       if (typeof response.body !== 'object' || !response.body.hasOwnProperty('ok')) {
-        throw new Error("Unexpected response from checkpoint. Expected a JSON object with an `ok` property, instead got the "+(typeof response.body)+" "+response.body);
+        throw new Error("Unexpected response from checkpoint. Expected a JSON object with an `ok` property, instead got the " + (typeof response.body) + " " + response.body);
       }
-      // A session cookie was already set, all good 
+      // A session cookie was already set, all good
       if (response.body.ok) {
         return true;
       }
 
-      // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.   
-      return _this.get('check-session').then(function(response) {
+      // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.
+      return _this.get('check-session').then(function(resp) {
         // status.ok is true if cookie is set
-        return response.body.ok;
+        return resp.body.ok;
       })
   });
 });
@@ -151,8 +151,8 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
           }
           var domain = url.parse(_this.connector.baseUrl).hostname;
           var error = new Error(
-            "Did return from an attempt to visit "+_this.connector.baseUrl+", but cookies is still not sent properly. " +
-            "This means the browser you are using is most likely blocking cookies from the domain "+domain+"."
+            "Did return from an attempt to visit " + _this.connector.baseUrl + ", but cookies is still not sent properly. " +
+            "This means the browser you are using is most likely blocking cookies from the domain " + domain + "."
           );
           error.code = "THIRDPARTY_COOKIES_BLOCKED";
           error.data = {
@@ -163,7 +163,9 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
 
         currentUrlParsed.query[CHECKED_PARAM] = true;
 
-        document.location.href = _this.urlTo("check-session", { redirect_to: url.format(currentUrlParsed) })
+        document.location.href = _this.urlTo("check-session", {
+          redirect_to: url.format(currentUrlParsed) // eslint-disable-line camelcase
+        })
       }
     })
 });

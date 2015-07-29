@@ -8,8 +8,12 @@ var deepExtend = require("deep-extend");
 // A Client is a wrapper around a connector and a service, providing an easy way to do various requests to
 // service endpoints.
 function Client(options) {
-  if (!options) throw Error("No options given");
-  if (!options.service) throw Error("No service given");
+  if (!options) {
+    throw Error("No options given");
+  }
+  if (!options.service) {
+    throw Error("No service given");
+  }
   this.requestOptions = options.requestOptions || {};
   this.service = options.service;
   this.connector = options.connector;
@@ -24,7 +28,9 @@ Client.prototype.request = function request(options) {
     options = { endpoint: options }
   }
 
-  if (!('endpoint' in options)) throw new Error("No endpoint given. Cannot continue.");
+  if (!('endpoint' in options)) {
+    throw new Error("No endpoint given. Cannot continue.");
+  }
 
   // Delegate the actual request to the connector
   return this.connector.request(deepExtend({}, this.requestOptions, extend(options, {

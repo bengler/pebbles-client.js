@@ -1,5 +1,5 @@
 // This is the pebbles client class for the harlem pebble.
-// Its a subclass of a pebbles-client/Client class and can be used like any ordinary client instance 
+// Its a subclass of a pebbles-client/Client class and can be used like any ordinary client instance
 "use strict";
 
 var inherits = require("inherits");
@@ -20,7 +20,7 @@ ReaktorCoreClient.prototype.getUpgradeStateForCapability = function getUpgradeSt
     var hasCapability = role.capabilities.indexOf(capability) > -1;
 
     if (!hasCapability && !role.upgrades[capability]) {
-      throw new Error("No upgrade path for capability "+JSON.stringify(capability)+". This is most likely because the capability is invalid.");
+      throw new Error("No upgrade path for capability " + JSON.stringify(capability) + ". This is most likely because the capability is invalid.");
     }
     return {
       role: role,
@@ -32,6 +32,5 @@ ReaktorCoreClient.prototype.getUpgradeStateForCapability = function getUpgradeSt
     }
   });
 };
-
 
 module.exports = ReaktorCoreClient;

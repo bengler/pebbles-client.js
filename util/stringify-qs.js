@@ -6,23 +6,27 @@ module.exports = stringify;
 function stringify(obj, prefix) {
   if (Array.isArray(obj)) {
     return stringifyArray(obj, prefix);
-  } else if ('[object Object]' == toString.call(obj)) {
+  } else if (toString.call(obj) == '[object Object]') {
     return stringifyObject(obj, prefix);
-  } else if ('string' == typeof obj) {
+  } else if (typeof obj == 'string') {
     return stringifyString(obj, prefix);
   } else {
     return prefix + '=' + encodeURIComponent(String(obj));
   }
-};
+}
 
 function stringifyString(str, prefix) {
-  if (!prefix) throw new TypeError('stringify expects an object');
+  if (!prefix) {
+    throw new TypeError('stringify expects an object');
+  }
   return prefix + '=' + encodeURIComponent(str);
 }
 
 function stringifyArray(arr, prefix) {
   var ret = [];
-  if (!prefix) throw new TypeError('stringify expects an object');
+  if (!prefix) {
+    throw new TypeError('stringify expects an object');
+  }
   for (var i = 0; i < arr.length; i++) {
     ret.push(stringify(arr[i], prefix + '[]'));
   }
@@ -37,8 +41,10 @@ function stringifyObject(obj, prefix) {
 
   for (var i = 0, len = keys.length; i < len; ++i) {
     key = keys[i];
-    if ('' == key) continue;
-    if (null == obj[key]) {
+    if (key == '') {
+      continue;
+    }
+    if (obj[key] == null) {
       ret.push(encodeURIComponent(key) + '=');
     } else {
       ret.push(stringify(obj[key], prefix

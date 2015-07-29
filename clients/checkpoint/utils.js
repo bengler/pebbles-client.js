@@ -5,7 +5,7 @@ function browserOnly(fn) {
   return function() {
     if (!isBrowser) {
       var fnName = fn.name || '<anonymous>';
-      throw new Error("Attempted to call function '"+fnName+"', in a non-browser environment. " +
+      throw new Error("Attempted to call function '" + fnName + "', in a non-browser environment. " +
       "You probably want to wrap this call in a if (typeof window !== 'undefined') {...} statement.")
     }
     return fn.apply(this, arguments);
@@ -14,9 +14,11 @@ function browserOnly(fn) {
 
 
 function addListener(evnt, elem, func) {
-  if (elem.addEventListener) elem.addEventListener(evnt,func,false);
+  if (elem.addEventListener) {
+    elem.addEventListener(evnt, func, false);
+  }
   else if (elem.attachEvent) {
-    return elem.attachEvent("on"+evnt, func);
+    return elem.attachEvent("on" + evnt, func);
   }
 }
 
