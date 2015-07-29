@@ -3,6 +3,8 @@ pebbles-client.js
 
 Multi-environment JavaScript client for pebbles services
 
+[![Build Status](https://travis-ci.org/bengler/pebbles-client.js.svg)](https://travis-ci.org/bengler/pebbles-client.js)
+
 ## Usage example
 
 ### Instantiate a set of services
@@ -28,12 +30,12 @@ var groveClient = pebbles.grove;
 A service is a context free description of a web service. It does not include any details about where the service may be running,
 so you can use the same service instance to make request to different locations.
 
-The Service class may be subclassed in order to provide service specific helper methods, etc. 
+The Service class may be subclassed in order to provide service specific helper methods, etc.
 
 ### Methods
 
 #### service#urlTo(endpoint, queryParams)
-Returns the path of the given endpoint, as specified by the pebbles convension `'/api/<service-name>/v<service-version>/<endpoint>` 
+Returns the path of the given endpoint, as specified by the pebbles convension `'/api/<service-name>/v<service-version>/<endpoint>`
 
 ```js
 var service = new Service({name: 'foo', version: 1});
@@ -78,7 +80,7 @@ var pebbles = new Connector({baseUrl: "http://pebbles.o5.no"})
 
 ## Client
 
-A client instance provides an api to make requests to a service 
+A client instance provides an api to make requests to a service
 
 ```js
 var client = new Client({service: }
@@ -161,10 +163,10 @@ client.request({
 
 #### client.put(endpoint, [body], [options], [callback])
 
-Same as client.post() but with `method: "put"` 
+Same as client.post() but with `method: "put"`
 #### client.del(endpoint, [queryString], [options], [callback])
 
-Same as client.get() but with `method: "delete"` 
+Same as client.get() but with `method: "delete"`
 
 
 ### Resources
