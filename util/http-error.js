@@ -1,3 +1,5 @@
+"use strict"
+
 var inherits = require("inherits");
 
 module.exports = HttpError;

@@ -1,3 +1,4 @@
+"use strict"
 
 var toString = Object.prototype.toString;
 
@@ -6,13 +7,14 @@ module.exports = stringify;
 function stringify(obj, prefix) {
   if (Array.isArray(obj)) {
     return stringifyArray(obj, prefix);
-  } else if (toString.call(obj) == '[object Object]') {
-    return stringifyObject(obj, prefix);
-  } else if (typeof obj == 'string') {
-    return stringifyString(obj, prefix);
-  } else {
-    return prefix + '=' + encodeURIComponent(String(obj));
   }
+  else if (toString.call(obj) == '[object Object]') {
+    return stringifyObject(obj, prefix);
+  }
+  else if (typeof obj == 'string') {
+    return stringifyString(obj, prefix);
+  }
+  return prefix + '=' + encodeURIComponent(String(obj));
 }
 
 function stringifyString(str, prefix) {
@@ -35,18 +37,19 @@ function stringifyArray(arr, prefix) {
 
 
 function stringifyObject(obj, prefix) {
-  var ret = []
-    , keys = Object.keys(obj)
-    , key;
+  var ret = [];
+  var keys = Object.keys(obj);
+  var key;
 
   for (var i = 0, len = keys.length; i < len; ++i) {
     key = keys[i];
     if (key == '') {
       continue;
     }
-    if (obj[key] == null) {
+    if (obj[key] === null) {
       ret.push(encodeURIComponent(key) + '=');
-    } else {
+    }
+    else {
       ret.push(stringify(obj[key], prefix
         ? prefix + '[' + encodeURIComponent(key) + ']'
         : encodeURIComponent(key)));

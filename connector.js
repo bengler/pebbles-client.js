@@ -46,7 +46,7 @@ Connector.prototype.request = function request(options) {
   return options.stream ? this.adapter.stream(options) : this.adapter.promise(options);
 };
 
-Connector.prototype.urlTo = function(path, queryString) {
+Connector.prototype.urlTo = function (path, queryString) {
 
   var baseUrl = url.parse(this.baseUrl, true, true);
   var parsedPath = url.parse(path, true, true);

@@ -1,3 +1,5 @@
+"use strict"
+
 var assert = require("assert")
 var mock = require("mock");
 var through = require("through2");
@@ -8,18 +10,18 @@ var http = require("http");
 describe("Node HTTP Adapter", function () {
   it("requests", function () {
     var nativeResponse = extend(through(), {
-        headers: {},
-        statusCode: 200,
-        statusText: 'OK'
+      headers: {},
+      statusCode: 200,
+      statusText: 'OK'
     });
 
     var adapter = mock("../../adapters/node-http", {
       http: extend(http, {
         request: function (options) {
           var mockReq = through();
-          process.nextTick(function() {
+          process.nextTick(function () {
             mockReq.emit('response', nativeResponse);
-            process.nextTick(function() {
+            process.nextTick(function () {
               nativeResponse.push("foo");
               nativeResponse.end();
             });

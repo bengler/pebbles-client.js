@@ -15,7 +15,7 @@ ReaktorCoreClient.prototype.getRole = function getRole(realm, path) {
 };
 
 ReaktorCoreClient.prototype.getUpgradeStateForCapability = function getUpgradeStateForCapability(capability, realm, path) {
-  return this.getRole(realm, path).then(function(response) {
+  return this.getRole(realm, path).then(function (response) {
     var role = response.body;
     var hasCapability = role.capabilities.indexOf(capability) > -1;
 

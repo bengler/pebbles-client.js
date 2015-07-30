@@ -1,3 +1,5 @@
+"use strict"
+
 var assert = require("assert")
 var sinon = require("sinon")
 
@@ -6,12 +8,12 @@ var Service = require("../service");
 var Connector = require("../connector");
 
 describe("Client", function () {
-  it("Forwards a request to an endpoint to a fully qualified service path", function() {
+  it("Forwards a request to an endpoint to a fully qualified service path", function () {
     var spy = sinon.spy();
     var mockAdapter = {
-      stream: function() {
+      stream: function () {
       },
-      promise: function() {
+      promise: function () {
         spy.apply(null, arguments);
       }
     };
@@ -23,12 +25,12 @@ describe("Client", function () {
     assert(spy.firstCall.args, ["get", "/api/kudu/v1/foo"])
   });
 
-  it("Passes through request params", function() {
+  it("Passes through request params", function () {
     var spy = sinon.spy();
     var mockAdapter = {
-      stream: function() {
+      stream: function () {
       },
-      promise: function() {
+      promise: function () {
         spy.apply(null, arguments);
       }
     };
@@ -37,6 +39,11 @@ describe("Client", function () {
     client.get("/foo", {foo: "bar"});
 
     assert(spy.calledOnce);
-    assert.deepEqual(spy.firstCall.args, [{queryString: {foo: "bar"}, method: "get", endpoint: "/foo", url: "/api/kudu/v1/foo"}])
+    assert.deepEqual(spy.firstCall.args, [{
+      queryString: {foo: "bar"},
+      method: "get",
+      endpoint: "/foo",
+      url: "/api/kudu/v1/foo"
+    }])
   })
 });

@@ -11,7 +11,7 @@
     "url": "http://github.com/bengler/pebbles-client.js.git"
   },
   "scripts": {
-    "test": "eslint . && mocha",
+    "test": "mocha",
     "lint": "eslint ."
   },
   "author": "Bjørge Næss",
@@ -29,6 +29,7 @@
     "es6-promise": "^1.0.0",
     "es6-shim": "^0.16.0",
     "eslint": "^0.24.1",
+    "eslint-config-bengler": "0.0.12",
     "mocha": "^1.21.4",
     "mock": "~0.1.1",
     "sinon": "^1.10.3",

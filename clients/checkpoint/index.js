@@ -26,7 +26,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
   opts.display = opts.display || 'popup';
   opts.timeout = opts.timeout || 1000 * 60 * 5;
 
-  if (provider == null) {
+  if (provider === null) {
     throw new Error("Provider not selected")
   }
 
@@ -57,7 +57,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
     // We clear it here to avoid excessive polling (better to wait until the request returns before polling again)
     clearInterval(pollTimerId);
 
-    return _this.get("/identities/me").then(getBody).then(function(me) {
+    return _this.get("/identities/me").then(getBody).then(function (me) {
       if (me.identity && !me.identity.provisional && me.accounts.indexOf(provider) > -1) {
         return me;
       }
@@ -68,7 +68,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
         if (me.identity && !me.identity.provisional && me.accounts.indexOf(provider) > -1) {
           return me;
         }
-        pollTimerId = setInterval(function() {
+        pollTimerId = setInterval(function () {
           poll().then(resolve, reject)
         }, opts.pollInterval);
       });
@@ -105,7 +105,7 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
   var _this = this;
   // In case we have no session cookie set, this first request will set it
   return this.get('check-session')
-    .then(function(response) {
+    .then(function (response) {
 
       if (typeof response.body !== 'object' || !response.body.hasOwnProperty('ok')) {
         throw new Error("Unexpected response from checkpoint. Expected a JSON object with an `ok` property, instead got the " + (typeof response.body) + " " + response.body);
@@ -116,11 +116,11 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession() {
       }
 
       // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.
-      return _this.get('check-session').then(function(resp) {
+      return _this.get('check-session').then(function (resp) {
         // status.ok is true if cookie is set
         return resp.body.ok;
       })
-  });
+    });
 });
 
 var CHECKED_PARAM = "--checkpoint-session-checked";
@@ -134,7 +134,7 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
 
   var _this = this;
   return this.checkSession()
-    .then(function(sessionReady) {
+    .then(function (sessionReady) {
       if (!sessionReady) {
         // Browser is not sending any cookies to the domain. Booo :-(
         // We need to navigate to checkpoints /ensure-session endpont on the domain, specifying where to redirect after
@@ -146,7 +146,8 @@ CheckpointClient.prototype.ensureSession = browserOnly(function ensureSession() 
           delete currentUrlParsed.query[CHECKED_PARAM];
           try {
             window.history.replaceState({}, null, url.format(currentUrlParsed));
-          } catch (e) {
+          }
+          catch (e) {
             // Ignore
           }
           var domain = url.parse(_this.connector.baseUrl).hostname;

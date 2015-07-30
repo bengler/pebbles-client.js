@@ -78,8 +78,8 @@ function StreamWrapper(client) {
   this.client = client;
 }
 
-['request', 'get', 'del', 'post', 'put'].forEach(function(method) {
-  StreamWrapper.prototype[method] = function(_, __, options) {
+['request', 'get', 'del', 'post', 'put'].forEach(function (method) {
+  StreamWrapper.prototype[method] = function (_, __, options) {
     return this.client[method](_, __, extend({stream: true}, options));
   };
 });
