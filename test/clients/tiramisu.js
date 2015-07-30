@@ -1,7 +1,7 @@
-'use strict'
+'use strict';
 
-var assert = require('assert')
-var TiramisuClient = require('../../clients/tiramisu')
+var assert = require('assert');
+var TiramisuClient = require('../../clients/tiramisu');
 var Connector = require('../../connector');
 var through = require('through');
 var concat = require('concat-stream');
@@ -9,7 +9,7 @@ var concat = require('concat-stream');
 function step(status, percent, metadata) {
   var ret = {status: status, percent: percent};
   if (metadata) {
-    ret.metadata = metadata
+    ret.metadata = metadata;
   }
   return ret;
 }
@@ -59,8 +59,9 @@ function createProgress() {
         }
       ]
     }]
-  ]
+  ];
 }
+
 var PROGRESS = createProgress();
 
 var noop = function () {
@@ -107,11 +108,11 @@ describe('TiramisuClient', function () {
         }));
 
       PROGRESS.forEach(function (p) {
-        uploadProgress.push(step.apply(null, p))
-      })
+        uploadProgress.push(step.apply(null, p));
+      });
 
       uploadProgress.end();
-    })
+    });
 
     it('Falls back to the largest possible image if there are no version match', function (done) {
       var uploadProgress = through();
@@ -130,9 +131,9 @@ describe('TiramisuClient', function () {
 
       PROGRESS.forEach(function (p) {
         uploadProgress.push(step.apply(null, p));
-      })
+      });
 
       uploadProgress.end();
-    })
-  })
+    });
+  });
 });
