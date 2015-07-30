@@ -17,9 +17,8 @@ var normalizers = {
   completed: function (p) { return 100; }
 };
 
-function TiramisuClient(options) {
-  options.service = 'tiramisu';
-  Client.call(this, options);
+function TiramisuClient() {
+  Client.apply(this, arguments);
 }
 
 inherits(TiramisuClient, Client);

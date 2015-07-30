@@ -84,7 +84,7 @@ describe('TiramisuClient', function () {
 
   var connector = new Connector({adapter: {stream: noop}});
 
-  var client = new TiramisuClient({connector: connector});
+  var client = new TiramisuClient({connector: connector, service: {name: 'tiramisu'}});
 
   describe('#waitFor', function () {
     xit('progressively polls for versions up to the size of the version specified by the given matchFn', function (done) {
