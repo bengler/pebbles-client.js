@@ -24,22 +24,26 @@ function TiramisuClient() {
 inherits(TiramisuClient, Client);
 
 TiramisuClient.prototype.uploadImage = function (endpoint, file, options) {
-  return this.uploadFile(endpoint, file)
+  var uploadOpts = {};
+  if (options && options.forceJPEG === false) {
+    uploadOpts.queryString = {force_jpeg: false};
+  }
+  return this.uploadFile(endpoint, file, uploadOpts)
     .pipe(this.waitFor(options.waitFor))
     .pipe(this._normalizeProgress());
 };
 
-TiramisuClient.prototype.uploadFile = function (endpoint, file) {
-  return this.upload(endpoint, file)
+TiramisuClient.prototype.uploadFile = function (endpoint, file, options) {
+  return this.upload(endpoint, file, options)
     .pipe(this._normalizeProgress());
 };
 
-TiramisuClient.prototype.upload = function (endpoint, file) {
+TiramisuClient.prototype.upload = function (endpoint, file, options) {
 
   var formData = new window.FormData();
   formData.append('file', file);
 
-  var req = this.stream().post(endpoint);
+  var req = this.stream().post(endpoint, null, options);
 
   req.xhr.upload.addEventListener('progress', function (progressEvent) {
     var percent = progressEvent.lengthComputable ? Math.ceil((progressEvent.loaded / progressEvent.total) * 100) : -1;
