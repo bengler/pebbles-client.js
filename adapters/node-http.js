@@ -99,6 +99,9 @@ function request(opts) {
   var req = http.request(opts);
   var duplex = duplexify.obj(req);
   duplex.xhr = req.xhr;
+  if (opts.onRequest) {
+    opts.onRequest(duplex.xhr);
+  }
   req.on('error', duplex.emit.bind(duplex, 'error'));
   req.on('response', duplex.setReadable.bind(duplex));
   req.on('response', duplex.emit.bind(duplex, 'response'));
@@ -118,6 +121,7 @@ function stream(options) {
     path: destUrl.pathname + (qs ? '?' + qs : ''),
     host: destUrl.host,
     port: destUrl.port,
+    onRequest: opts.onRequest,
     protocol: destUrl.protocol,
     withCredentials: withCredentials
   });
