@@ -121,7 +121,7 @@ function stream(options) {
     path: destUrl.pathname + (qs ? '?' + qs : ''),
     host: destUrl.host,
     port: destUrl.port,
-    onRequest: opts.onRequest,
+    onRequest: options.onRequest,
     protocol: destUrl.protocol,
     withCredentials: withCredentials
   });
