@@ -82,7 +82,7 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
     // Rename the 'completed' event to 'transferred' as it is not completed just yet :)
     stream.queue(Object.assign({}, completedEvent, {status: 'transferred'}));
 
-    pendingVersions = completedEvent.metadata.versions;
+    pendingVersions = completedEvent.metadata.versions.slice();
     if (versionMatchFn) {
       var matchingVersionIndex = pendingVersions.findIndex(versionMatchFn);
       if (matchingVersionIndex > -1) {
