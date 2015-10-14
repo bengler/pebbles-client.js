@@ -41,6 +41,15 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
 
   var win = window.open(loginEndpoint, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
 
+  if (!win) {
+    var message = 'Could not open login window. This may be caused by an attempt to call window.open() without being' +
+      ' in the call stack of an user event (e.g. onClick).' +
+      ' Please make sure that no call to "checkpointClient.login()" are delayed (i.e. with setTimeout), but invoked ' +
+      ' synchronously in the call stack from the originating user event';
+
+    return Promise.reject(new Error(message));
+  }
+
   this._registerFocusMessageHandler();
 
   var pollTimerId;
