@@ -11,6 +11,8 @@ var defaultRequestHeaders = {
   accept: "application/json,text/plain,* / *"
 };
 
+var DEFAULT_TIMEOUT = 60000;
+
 module.exports = configure();
 module.exports.configure = configure;
 
@@ -67,7 +69,6 @@ function configure(opts) {
       req
         .on('error', reject)
         .on('end', function () {
-
           var contentType = res.headers && res.headers['content-type'] && res.headers['content-type'].split(";")[0];
 
           var parsed;
@@ -96,12 +97,38 @@ function configure(opts) {
 }
 
 function request(opts) {
-  var req = http.request(opts);
+  var requestOptions = extend({}, opts);
+  delete requestOptions.timeout;
+
+  var inProgress = true;
+  var req = http.request(requestOptions);
   var duplex = duplexify.obj(req);
   duplex.xhr = req.xhr;
   req.on('error', duplex.emit.bind(duplex, 'error'));
   req.on('response', duplex.setReadable.bind(duplex));
   req.on('response', duplex.emit.bind(duplex, 'response'));
+
+  // Timeout handling
+  var timeout = (opts ? opts.timeout : null) || DEFAULT_TIMEOUT;
+  req.on('response', function(res) {
+    inProgress = false;
+    res.on('end', function () {
+      inProgress = false;
+    });
+  });
+  if (req.setTimeout) {
+    req.setTimeout(timeout);
+  }
+  req.on('socket', function (socket) {
+    // For Node 0.x. Looks like >= 4 has got this covered with req.setTimeout().
+    socket.setTimeout(timeout);
+    socket.on('timeout', function () {
+      if (inProgress) {
+        req.abort();
+      }
+    });
+  });
+
   return duplex;
 }
 
