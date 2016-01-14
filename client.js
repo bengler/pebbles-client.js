@@ -23,23 +23,36 @@ Client.prototype.urlTo = function urlTo(endpoint, queryString) {
   return this.connector.urlTo(this.service.pathTo(endpoint), deepExtend({}, this.requestOptions.queryString || {}, queryString || {}));
 };
 
-Client.prototype.request = function request(options) {
+Client.prototype._prepareOptions = function request(options) {
   if (typeof options === 'string') {
     options = { endpoint: options }
   }
 
   if (!('endpoint' in options)) {
-    throw new Error("No endpoint given. Cannot continue.");
+    throw new Error('No endpoint given. Cannot continue.');
   }
-
-  // Delegate the actual request to the connector
-  return this.connector.request(deepExtend({}, this.requestOptions, extend(options, {
+  return deepExtend({}, this.requestOptions, extend(options, {
     url: this.urlTo(options.endpoint)
-  })));
+  }))
+}
+
+Client.prototype.request = function request(options) {
+  // Delegate the actual request to the connector
+  return options.stream ? this._stream(options) : this._promise(options)
 };
 
 Client.prototype.stream = function stream() {
   return new StreamWrapper(this);
+};
+
+Client.prototype._stream = function _stream(options) {
+  return this.connector.request(this._prepareOptions(options));
+};
+
+Client.prototype._promise = function _promise(options) {
+  return Promise.resolve().then(function () {
+    return this.connector.request(this._prepareOptions(options))
+  }.bind(this));
 };
 
 Client.prototype.get = function get(endpoint, queryString, options) {
