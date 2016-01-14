@@ -22,7 +22,6 @@
     "http-browserify": "git://github.com/bjoerge/http-browserify#fix-withcredentials-bug",
     "inherits": "~2.0.1",
     "json-stream": "~0.2.0",
-    "lodash.merge": "^4.0.1",
     "through": "^2.3.6",
     "xtend": "^4.0.0"
   },

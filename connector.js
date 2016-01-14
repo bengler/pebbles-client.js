@@ -7,7 +7,7 @@ var Client = require("./client");
 var stringifyQS = require("./util/stringify-qs");
 
 var extend = require("xtend");
-var deepExtend = require("lodash.merge");
+var deepExtend = require("deep-extend");
 var url = require("url");
 
 /**
