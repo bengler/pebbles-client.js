@@ -63,9 +63,12 @@ function configure(opts) {
     req.on('data', function (chunk) {
       body += chunk;
     });
-    var PromiseImpl = opts.promiseImpl || Promise;
 
-    return new PromiseImpl(function (resolve, reject) {
+    if (opts.promiseImpl) {
+      throw new Error('Support for specifying adapter.promiseImpl has been removed in v2.x.')
+    }
+
+    return new Promise(function (resolve, reject) {
       req
         .on('error', reject)
         .on('end', function () {
