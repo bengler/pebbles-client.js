@@ -31,7 +31,7 @@
     "es6-shim": "^0.16.0",
     "eslint": "^0.24.1",
     "eslint-config-bengler": "0.0.12",
-    "mocha": "^2.3.4",
+    "mocha": "^1.21.4",
     "mock": "~0.1.1",
     "sinon": "^1.10.3",
     "through2": "^0.6.3"

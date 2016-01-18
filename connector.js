@@ -42,17 +42,8 @@ function Connector(options) {
 }
 
 Connector.prototype.request = function request(options) {
-  return options.stream ? this._stream(options) : this._promise(options)
-};
-
-Connector.prototype._stream = function _stream(options) {
-  return this.adapter.stream(deepExtend({}, this.requestOptions, options))
-};
-
-Connector.prototype._promise = function _promise(options) {
-  return Promise.resolve().then(function () {
-    return this.adapter.promise(deepExtend({}, this.requestOptions, options));
-  }.bind(this))
+  options = deepExtend({}, this.requestOptions, options);
+  return options.stream ? this.adapter.stream(options) : this.adapter.promise(options);
 };
 
 Connector.prototype.urlTo = function (path, queryString) {
