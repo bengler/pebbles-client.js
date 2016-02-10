@@ -33,7 +33,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts, callbac
   // Defaults
   opts || (opts = {});
   opts.pollInterval || (opts.pollInterval = 1000);
-  opts.display || (opts.display = 'popup');  
+  opts.display || (opts.display = 'popup');
 
   if (provider == null) {
     throw new Error("Provider not selected")
@@ -48,10 +48,14 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts, callbac
 
   var url = this.urlTo("/login/" + provider) + "?" + params.join("&");
 
-  var win = window.open(url, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
+  if (opts.inSameWindow) {
+    return window.location = url
+  } else {
+    var win = window.open(url, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
+  }
 
   this._registerFocusMessageHandler();
-  
+
   var pollId = setInterval(poll.bind(this), opts.pollInterval);
 
   var stopped = false;
@@ -63,7 +67,7 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts, callbac
     clearInterval(pollId);
     if (callback) {
       callback.apply(callback, arguments);
-    } 
+    }
     else if (err) throw err;
   }
 
@@ -92,10 +96,10 @@ CheckpointClient.prototype.checkSession = browserOnly(function checkSession(cb) 
   // In case we have no session cookie set, this first request will set it
   this.get('check-session', function(err, response) {
     if (err) return cb(new Error("HTTP "+response.statusCode+" error when requesting checkpoint at "+_this.urlTo("check-session")));
-    // A session cookie was already set, all good 
+    // A session cookie was already set, all good
     if (status.ok) return cb(null, true);
 
-    // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.   
+    // Ok, we had no session cookie in our first attempt, check to see if it gets sent now.
     _this.get('check-session', function(err, status) {
       if (err) return cb(err);
       // status.ok is true if cookie is set
