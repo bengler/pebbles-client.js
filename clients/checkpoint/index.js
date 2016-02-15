@@ -39,6 +39,10 @@ CheckpointClient.prototype.login = browserOnly(function (provider, opts) {
 
   var loginEndpoint = this.urlTo("/login/" + provider, params);
 
+  if (opts.inSameWindow) {
+    window.location = loginEndpoint;
+    return;
+  }
   var win = window.open(loginEndpoint, "checkpointlogin_" + (new Date()).getTime(), 'width=1024,height=800');
 
   if (!win) {
