@@ -35,7 +35,7 @@ function Connector(options) {
   this.requestOptions = options.requestOptions || {};
   this.adapter = options.adapter;
   this.baseUrl = options.baseUrl || '';
-  this.clientClasses = options.clientClasses;
+  this.clientClasses = options.clientClasses || {};
   if (options.services) {
     this.use(options.services);
   }
