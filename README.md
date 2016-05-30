@@ -3,7 +3,7 @@ pebbles-client.js
 
 Multi-environment JavaScript client for pebbles services
 
-[![Build Status](https://travis-ci.org/bengler/pebbles-client.js.svg)](https://travis-ci.org/bengler/pebbles-client.js)
+[![Build Status](https://travis-ci.org/bengler/pebbles-client.js.svg?branch=master)](https://travis-ci.org/bengler/pebbles-client.js)
 
 ## Usage example
 
