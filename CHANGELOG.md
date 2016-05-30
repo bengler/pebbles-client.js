@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.1] - 30-05-2016
+Fixes issue with MS Edge: For some reason edge reported an empty line in xhr.responseText, which in turn caused image uploading to be broken.
+
 ## [2.0.0] - 18-01-2016
 ### Breaking
 - Removed support for passing `promiseImpl` as option to the httpAdapter. If you need to wrap values returned from client methods you are better off
