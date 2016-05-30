@@ -21,7 +21,7 @@
     "duplexify": "^3.2.0",
     "http-browserify": "git://github.com/bjoerge/http-browserify#fix-withcredentials-bug",
     "inherits": "~2.0.1",
-    "json-stream": "~0.2.0",
+    "split": "^1.0.0",
     "through": "^2.3.6",
     "xtend": "^4.0.0"
   },
