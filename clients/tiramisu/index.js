@@ -2,8 +2,33 @@
 
 var Client = require('../../client');
 var inherits = require('inherits');
-var JSONStream = require('json-stream');
 var through = require('through');
+var split = require('split');
+
+function filter(test) {
+  return through(function (chunk) {
+    if (test(chunk)) {
+      this.queue(chunk);
+    }
+  });
+}
+
+function parseJSON() {
+  return through(function (jsonStr) {
+    var parsed;
+    var didParse = false;
+    try {
+      parsed = JSON.parse(jsonStr);
+      didParse = true;
+    }
+    catch(e) {
+      this.emit('error', new Error('Unparseable JSON string: ' + JSON.stringify(jsonStr) + ', ' + e.message))
+    }
+    if (didParse) {
+      this.queue(parsed);
+    }
+  });
+}
 
 module.exports = TiramisuClient;
 
@@ -52,7 +77,13 @@ TiramisuClient.prototype.upload = function (endpoint, file, options) {
 
   req.end(formData);
 
-  return req.pipe(new JSONStream());
+  return req
+    .pipe(split('\n'))
+    .pipe(filter(function (line) {
+      return line && line.trim().length > 0;
+    }))
+    .pipe(parseJSON());
+
 };
 
 TiramisuClient.prototype._normalizeProgress = function _normalizeProgress() {
