@@ -3,7 +3,8 @@
 var Client = require("../client");
 var inherits = require("inherits");
 var ProgressStream = require("./tiramisu/xhr-progress-stream")
-var JSONStream = require('json-stream');
+var split = require('split')
+var utils = require('./tiramisu/utils')
 
 module.exports = TiramisuClient
 
@@ -31,6 +32,12 @@ TiramisuClient.prototype.upload = function (endpoint, fileField, cb) {
       cb(error, body, progress);
     });
   }
+  console.log('uploading!')
   xhr.send(formData);
-  return progress.pipe(new JSONStream())
+  return progress
+    .pipe(split('\n'))
+    .pipe(utils.filter(function (line) {
+      return line && line.trim().length > 0;
+    }))
+    .pipe(utils.parseJSON());
 };

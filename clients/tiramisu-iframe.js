@@ -2,8 +2,9 @@
 
 var Client = require("../client");
 var inherits = require("inherits");
-var JSONStream = require('json-stream');
 var url = require("url");
+var split = require('split')
+var utils = require('./tiramisu/utils')
 
 var ProgressStream = require("./tiramisu/iframe-progress-stream");
 
@@ -69,6 +70,11 @@ TiramisuIframeClient.prototype.upload = function (endpoint, fileField, callback)
   });
 
   form.submit();
-  return progress.pipe(new JSONStream())
+  return progress
+    .pipe(split('\n'))
+    .pipe(utils.filter(function (line) {
+      return line && line.trim().length > 0;
+    }))
+    .pipe(utils.parseJSON());
 };
 

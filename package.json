@@ -13,8 +13,8 @@
     "deepmerge": "~0.2.7",
     "inherits": "~2.0.1",
     "jquery": "~2.1.0",
-    "json-stream": "~0.2.0",
     "request": "~2.27.0",
+    "split": "^1.0.0",
     "through": "~2.3.4",
     "util-extend": "~1.0.1",
     "xhr": "~1.2.3"
