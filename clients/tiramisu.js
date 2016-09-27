@@ -14,14 +14,19 @@ function TiramisuClient() {
 
 inherits(TiramisuClient, Client);
 
-TiramisuClient.prototype.upload = function (endpoint, fileField, cb) {
+TiramisuClient.prototype.upload = function (endpoint, fileField, queryString, cb) {
+
+  if (typeof queryString === 'function') {
+    cb = queryString
+    queryString = undefined
+  }
 
   var formData = new FormData();
   formData.append(fileField.name, fileField.files[0]);
 
   var xhr = new XMLHttpRequest();
   var progress = new ProgressStream(xhr);
-  xhr.open("POST", this.urlTo(endpoint));
+  xhr.open("POST", this.urlTo(endpoint, queryString));
   xhr.withCredentials = true;
   var error = null;
   progress.on('error', function (e) {
