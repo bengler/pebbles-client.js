@@ -1,6 +1,6 @@
 {
   "name": "@bengler/pebbles-client",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "description": "Multi-environment JavaScript client for pebbles services",
   "main": "index.js",
   "browser": "./index.browser.js",
