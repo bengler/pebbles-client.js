@@ -23,6 +23,7 @@ describe("Node HTTP Adapter", function () {
             mockReq.emit('response', nativeResponse);
             process.nextTick(function () {
               nativeResponse.push("foo");
+              nativeResponse.push("bar");
               nativeResponse.end();
             });
           });
@@ -32,7 +33,7 @@ describe("Node HTTP Adapter", function () {
     });
 
     return adapter.promise({method: 'get', url: "http://pebblestack.org/foo"}).then(function (response) {
-      assert.equal(response.body, "foo");
+      assert.equal(response.body, "foobar");
       assert.equal(response.statusCode, 200);
       assert.equal(response.statusText, "OK");
       assert.equal(response._native, nativeResponse);

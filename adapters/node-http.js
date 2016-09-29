@@ -56,12 +56,20 @@ function configure(opts) {
   // Turns a duplex (req, res) stream into a promise
   function promisify(req) {
     var res;
+    var chunks = [];
     var body = '';
+    var onlyStrings = true;
     req.on('response', function (_res) {
       res = _res;
     });
     req.on('data', function (chunk) {
-      body += chunk;
+      if (typeof chunk !== 'string') {
+        onlyStrings = false;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', function () {
+      body = onlyStrings ? chunks.join('') : Buffer.concat(chunks).toString();
     });
 
     if (opts.promiseImpl) {
