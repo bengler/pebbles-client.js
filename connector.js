@@ -32,7 +32,7 @@ Connector.prototype.request = function request(options, callback) {
 };
 
 Connector.prototype.urlTo = function(path, queryString) {
-  var u = url.parse(this.baseUrl, !!queryString);
+  var u = url.parse(this.baseUrl, !!queryString, true);
   if (queryString) {
     u.query = u.query ? extend(u.query, queryString) : queryString;
   }
