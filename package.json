@@ -15,7 +15,7 @@
     "postpublish": "rimraf lib",
     "compile": "babel src --out-dir lib",
     "compile:watch": "npm run compile -- --watch",
-    "mocha": "mocha",
+    "mocha": "mocha --compilers js:babel-register",
     "lint": "eslint .",
     "test": "npm run mocha && npm run lint -- --quiet"
   },
@@ -34,6 +34,7 @@
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-preset-es2015": "^6.18.0",
+    "babel-register": "^6.18.0",
     "concat-stream": "^1.5.2",
     "eslint": "^3.12.0",
     "eslint-config-bengler": "3.0.1",
