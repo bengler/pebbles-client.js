@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.4] - 12-12-2016
+- Use pumpify for stream error propagation
+
+## [2.0.3] - 29-09-2016
+- Fix broken chunks concatenation in node
+- Drop Travis CI support for node v0.10, v0.12, v5, keep v4 and add v6
+
+## [2.0.2] - 12-08-2016
+- Remove unused es6-promise and obsolete es6-shim
+- Update duplexify. Fixes Node >= 6 issues
+
 ## [2.0.1] - 30-05-2016
 Fixes issue with MS Edge: For some reason edge reported an empty line in xhr.responseText, which in turn caused image uploading to be broken.
 
