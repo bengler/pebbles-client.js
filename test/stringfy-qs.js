@@ -1,42 +1,42 @@
-"use strict"
 
-var assert = require("assert")
-var stringifyQs = require("../util/stringify-qs");
 
-describe("stringify", function () {
-  it("returns empty string for empty object", function () {
-    assert.equal(stringifyQs({}), "");
-  });
+const assert = require('assert')
+const stringifyQs = require('../src/util/stringify-qs')
 
-  it("stringifies shallow", function () {
-    assert.equal(stringifyQs({foo: 'bar'}), "foo=bar");
-  });
+describe('stringify', () => {
+  it('returns empty string for empty object', () => {
+    assert.equal(stringifyQs({}), '')
+  })
 
-  it("stringifies deep query params", function () {
+  it('stringifies shallow', () => {
+    assert.equal(stringifyQs({foo: 'bar'}), 'foo=bar')
+  })
+
+  it('stringifies deep query params', () => {
     assert.equal(stringifyQs({
       foo: 'bar',
       bar: {baz: 'qux'}
-    }), "foo=bar&bar[baz]=qux");
-  });
+    }), 'foo=bar&bar[baz]=qux')
+  })
 
-  it("stringifies arrays too", function () {
+  it('stringifies arrays too', () => {
     assert.equal(stringifyQs({
       foo: 'bar',
       bar: {baz: 'qux'}
-    }), "foo=bar&bar[baz]=qux");
-  });
+    }), 'foo=bar&bar[baz]=qux')
+  })
 
-  it("stringifies arrays too", function () {
+  it('stringifies arrays too', () => {
     assert.equal(stringifyQs({
       foo: 'bar',
       arr: [1, 2, 3]
-    }), "foo=bar&arr[]=1&arr[]=2&arr[]=3");
-  });
+    }), 'foo=bar&arr[]=1&arr[]=2&arr[]=3')
+  })
 
-  it("stringifies deeply nested arrays too", function () {
+  it('stringifies deeply nested arrays too', () => {
     assert.equal(stringifyQs({
       foo: 'bar',
-      arr: [1, {x: "y"}, 3]
-    }), "foo=bar&arr[]=1&arr[][x]=y&arr[]=3");
-  });
-});
+      arr: [1, {x: 'y'}, 3]
+    }), 'foo=bar&arr[]=1&arr[][x]=y&arr[]=3')
+  })
+})

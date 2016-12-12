@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 12-12-2016
+### Breaking changes
+- HTTP errors are no longer instances of HTTPError, but rather have a code property set to `HTTP_ERROR`
+- CheckpointClient does not expose LoginError anymore. Use `CheckpointClient.isLoginError(error)` to check if an error is a Login error
+
+### Minor changes
+- Migrate codebase to ES6 using Babel
+- Remove use of legacy eslint config and fix lint errors
+
 ## [2.0.4] - 12-12-2016
 - Use pumpify for stream error propagation
 

@@ -1,16 +1,9 @@
 {
   "extends": [
-    "bengler",
-    "bengler/legacy-overrides/es5"
+    "bengler"
   ],
   "env": {
     "node": true,
     "browser": true
-  },
-  "rules": {
-    // Todo: remove these
-    "semi": 1,
-    "quotes": 1,
-    "no-param-reassign": 1
   }
 }

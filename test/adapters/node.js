@@ -1,42 +1,40 @@
-"use strict"
-
-var assert = require("assert")
-var mock = require("mock");
-var through = require("through2");
+const assert = require('assert')
+const mock = require('mock')
+const through = require('through2')
 // Can't use immutable to add properties to a stream object
-var extend = require("xtend/mutable");
-var http = require("http");
+const extend = require('xtend/mutable')
+const http = require('http')
 
-describe("Node HTTP Adapter", function () {
-  it("requests", function () {
-    var nativeResponse = extend(through(), {
+describe('Node HTTP Adapter', () => {
+  it('requests', () => {
+    const nativeResponse = extend(through(), {
       headers: {},
       statusCode: 200,
       statusText: 'OK'
-    });
+    })
 
-    var adapter = mock("../../adapters/node-http", {
+    const adapter = mock('../../src/adapters/node-http', {
       http: extend(http, {
-        request: function (options) {
-          var mockReq = through();
-          process.nextTick(function () {
-            mockReq.emit('response', nativeResponse);
-            process.nextTick(function () {
-              nativeResponse.push("foo");
-              nativeResponse.push("bar");
-              nativeResponse.end();
-            });
-          });
-          return mockReq;
+        request(options) {
+          const mockReq = through()
+          process.nextTick(() => {
+            mockReq.emit('response', nativeResponse)
+            process.nextTick(() => { // eslint-disable-line max-nested-callbacks
+              nativeResponse.push('foo')
+              nativeResponse.push('bar')
+              nativeResponse.end()
+            })
+          })
+          return mockReq
         }
       })
-    });
-
-    return adapter.promise({method: 'get', url: "http://pebblestack.org/foo"}).then(function (response) {
-      assert.equal(response.body, "foobar");
-      assert.equal(response.statusCode, 200);
-      assert.equal(response.statusText, "OK");
-      assert.equal(response._native, nativeResponse);
     })
-  });
-});
+
+    return adapter.promise({method: 'get', url: 'http://pebblestack.org/foo'}).then(response => {
+      assert.equal(response.body, 'foobar')
+      assert.equal(response.statusCode, 200)
+      assert.equal(response.statusText, 'OK')
+      assert.equal(response._native, nativeResponse)
+    })
+  })
+})

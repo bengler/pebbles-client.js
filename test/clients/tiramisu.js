@@ -1,22 +1,22 @@
-'use strict';
+/* eslint-disable max-nested-callbacks */
 
-var assert = require('assert');
-var TiramisuClient = require('../../clients/tiramisu');
-var Connector = require('../../connector');
-var through = require('through2');
-var concat = require('concat-stream');
+const assert = require('assert')
+const TiramisuClient = require('../../src/clients/tiramisu')
+const Connector = require('../../src/connector')
+const through = require('through2')
+const concat = require('concat-stream')
 
 function step(status, percent, metadata) {
-  var ret = {status: status, percent: percent};
+  const ret = {status: status, percent: percent}
   if (metadata) {
-    ret.metadata = metadata;
+    ret.metadata = metadata
   }
-  return ret;
+  return ret
 }
 
 function createProgress() {
-  var url = 'http://staging.o5.no.s3.amazonaws.com/oma/www/20150729093106-ucoz-1315-gif/234.gif';
-  var aspect = 1.3146;
+  const url = 'http://staging.o5.no.s3.amazonaws.com/oma/www/20150729093106-ucoz-1315-gif/234.gif'
+  const aspect = 1.3146
 
   return [
     ['initializing', 1, {type: 'image', previewUrl: url}],
@@ -40,100 +40,100 @@ function createProgress() {
         {
           width: 100,
           square: false,
-          url: url + '?width=100'
+          url: `${url}?width=100`
         },
         {
           width: 100,
           square: true,
-          url: url + '?width=100&square=true'
+          url: `${url}?width=100&square=true`
         },
         {
           width: 300,
           square: false,
-          url: url + '?width=300'
+          url: `${url}?width=300`
         },
         {
           width: 1213,
           square: false,
-          url: url + '?width=1213'
+          url: `${url}?width=1213`
         }
       ]
     }]
-  ];
+  ]
 }
 
-var PROGRESS = createProgress();
+const PROGRESS = createProgress()
 
-var noop = function () {
-};
+const noop = function () {
+}
 
 // Create a mock XMLHttpRequest
 global.XMLHttpRequest = function () {
-  var req = {};
+  const req = {}
   req.open = function (method, url) {
     //console.log("Request: %s %s", method, url)
-  };
+  }
   req.send = function () {
-    req.status = 200;
-    setTimeout(req.onload, 0);
-  };
-  return req;
-};
+    req.status = 200
+    setTimeout(req.onload, 0)
+  }
+  return req
+}
 
 
-describe('TiramisuClient', function () {
+describe('TiramisuClient', () => {
 
-  var connector = new Connector({adapter: {stream: noop}});
+  const connector = new Connector({adapter: {stream: noop}})
 
-  var client = new TiramisuClient({connector: connector, service: {name: 'tiramisu'}});
+  const client = new TiramisuClient({connector: connector, service: {name: 'tiramisu'}})
 
-  describe('#waitFor', function () {
-    xit('progressively polls for versions up to the size of the version specified by the given matchFn', function (done) {
+  describe('#waitFor', () => {
+    xit('progressively polls for versions up to the size of the version specified by the given matchFn', done => {
 
-    });
+    })
 
-    it('Waits for a version match specified by the given matchFn', function (done) {
-      var uploadProgress = through.obj();
-
-      uploadProgress
-        .pipe(client.waitFor(function (version) {
-          return version.width >= 100;
-        }))
-        .pipe(TiramisuClient.normalizeProgress())
-        .pipe(concat(function (result) {
-          var lastReadyVersion = result.slice(-2)[0];
-          assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event');
-          assert.equal(lastReadyVersion.version.width, 100, 'Unexpected width of last ready image');
-          done();
-        }));
-
-      PROGRESS.forEach(function (p) {
-        uploadProgress.push(step.apply(null, p));
-      });
-
-      uploadProgress.end();
-    });
-
-    it('Falls back to the largest possible image if there are no version match', function (done) {
-      var uploadProgress = through.obj();
+    it('Waits for a version match specified by the given matchFn', done => {
+      const uploadProgress = through.obj()
 
       uploadProgress
-        .pipe(client.waitFor(function (version) {
-          return version.width > 1300;
+        .pipe(client.waitFor(version => {
+          return version.width >= 100
         }))
         .pipe(TiramisuClient.normalizeProgress())
-        .pipe(concat(function (result) {
-          var lastReadyVersion = result.slice(-2)[0];
-          assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event');
-          assert.equal(lastReadyVersion.version.width, 1213, 'Unexpected width of last ready image');
-          done();
-        }));
+        .pipe(concat(result => {
+          const lastReadyVersion = result.slice(-2)[0]
+          assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event')
+          assert.equal(lastReadyVersion.version.width, 100, 'Unexpected width of last ready image')
+          done()
+        }))
 
-      PROGRESS.forEach(function (p) {
-        uploadProgress.push(step.apply(null, p));
-      });
+      PROGRESS.forEach(p => {
+        uploadProgress.push(step(...p))
+      })
 
-      uploadProgress.end();
-    });
-  });
-});
+      uploadProgress.end()
+    })
+
+    it('Falls back to the largest possible image if there are no version match', done => {
+      const uploadProgress = through.obj()
+
+      uploadProgress
+        .pipe(client.waitFor(version => {
+          return version.width > 1300
+        }))
+        .pipe(TiramisuClient.normalizeProgress())
+        .pipe(concat(result => {
+          const lastReadyVersion = result.slice(-2)[0]
+          assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event')
+          assert.equal(lastReadyVersion.version.width, 1213, 'Unexpected width of last ready image')
+          done()
+        }))
+
+      PROGRESS.forEach(p => {
+        uploadProgress.push(step(...p))
+      })
+
+      uploadProgress.end()
+    })
+  })
+})
