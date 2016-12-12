@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.1] - 12-12-2016
+- Avoid usage of `[].findIndex` for es5 compat
+- Run tests with babel-register
+
 ## [3.0.0] - 12-12-2016
 ### Breaking changes
 - HTTP errors are no longer instances of HTTPError, but rather have a code property set to `HTTP_ERROR`
