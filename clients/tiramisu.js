@@ -1,33 +1,35 @@
 "use strict";
 
-var Client = require('../../client');
+var Client = require('../client');
 var inherits = require('inherits');
-var through = require('through');
-var split = require('split');
+var through = require('through2');
+var split = require('split2');
 var pumpify = require('pumpify');
 
 function filter(test) {
-  return through(function (chunk) {
-    if (test(chunk)) {
-      this.queue(chunk);
+  return through(function (chunk, enc, cb) {
+    if (test(String(chunk))) {
+      this.push(chunk);
     }
+    cb()
   });
 }
 
 function parseJSON() {
-  return through(function (jsonStr) {
+  return through.obj(function (jsonStr, enc, cb) {
     var parsed;
-    var didParse = false;
+    var error = null;
     try {
       parsed = JSON.parse(jsonStr);
-      didParse = true;
+    } catch(e) {
+      error = e
     }
-    catch(e) {
-      this.emit('error', new Error('Unparseable JSON string: ' + JSON.stringify(jsonStr) + ', ' + e.message))
+    if (error) {
+      cb(error)
+      return
     }
-    if (didParse) {
-      this.queue(parsed);
-    }
+    this.push(parsed)
+    cb()
   });
 }
 
@@ -40,8 +42,29 @@ var normalizers = {
   transferring: function (p) { return 60 + p * 0.2; },
   transferred: function (p) { return 80; },
   ready: function (p) { return 80 + p * 0.2; },
-  completed: function (p) { return 100; }
+  completed: function (p) { return 100; },
+  failed: function (p) { return 100; }
 };
+
+function normalizeProgress() {
+  return through.obj(function write(event, enc, cb) {
+    this.push(Object.assign({}, event, {
+      percent: normalizers[event.status](event.percent)
+    }))
+    cb();
+  });
+}
+TiramisuClient.normalizeProgress = normalizeProgress
+function checkError() {
+  return through.obj(function write(data, chunk, cb) {
+    if (data.status === 'failed') {
+      cb(new Error('Upload failed: ' + data.message))
+      return
+    }
+    this.push(data)
+    cb();
+  });
+}
 
 function TiramisuClient() {
   Client.apply(this, arguments);
@@ -54,17 +77,17 @@ TiramisuClient.prototype.uploadImage = function (endpoint, file, options) {
   if (options && options.forceJPEG === false) {
     uploadOpts.queryString = {force_jpeg: false};
   }
-  return pumpify(
+  return pumpify.obj(
     this.upload(endpoint, file, uploadOpts),
     this.waitFor(options.waitFor),
-    this._normalizeProgress()
+    normalizeProgress()
   );
 };
 
 TiramisuClient.prototype.uploadFile = function (endpoint, file, options) {
-  return pumpify(
+  return pumpify.obj(
     this.upload(endpoint, file, options),
-    this._normalizeProgress()
+    normalizeProgress()
   );
 };
 
@@ -82,22 +105,15 @@ TiramisuClient.prototype.upload = function (endpoint, file, options) {
 
   req.end(formData);
 
-  return pumpify(
+  return pumpify.obj(
     req,
     split('\n'),
     filter(function (line) {
       return line && line.trim().length > 0;
     }),
-    parseJSON()
+    parseJSON(),
+    checkError()
   );
-};
-
-TiramisuClient.prototype._normalizeProgress = function _normalizeProgress() {
-  return through(function write(event) {
-    this.queue(Object.assign({}, event, {
-      percent: normalizers[event.status](event.percent)
-    }));
-  });
 };
 
 TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
@@ -105,19 +121,19 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
   var pendingVersions;
   var waitForCount;
 
-  var stream = through(write, end);
+  var stream = through.obj(write, end);
 
-  function write(event) {
-    if (event.status == 'completed') {
+  function write(event, enc, cb) {
+    if (event.status === 'completed' || event.status === 'failed') {
       completedEvent = event;
-      return;
     }
-    stream.queue(event);
+    this.push(event)
+    cb();
   }
 
-  function end() {
+  function end(cb) {
     // Rename the 'completed' event to 'transferred' as it is not completed just yet :)
-    stream.queue(Object.assign({}, completedEvent, {status: 'transferred'}));
+    this.push(Object.assign({}, completedEvent, {status: 'transferred'}));
 
     pendingVersions = completedEvent.metadata.versions.slice();
     if (versionMatchFn) {
@@ -129,9 +145,9 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
     waitForCount = pendingVersions.length;
 
     pollNext().then(function (readyVersion) {
-      stream.queue({status: 'completed', ready: readyVersion, metadata: completedEvent.metadata, percent: 100});
-      stream.queue(null);
-    });
+      this.push({status: 'completed', ready: readyVersion, metadata: completedEvent.metadata, percent: 100});
+      cb()
+    }.bind(this));
   }
 
   function pollNext() {
@@ -139,7 +155,7 @@ TiramisuClient.prototype.waitFor = function waitFor(versionMatchFn) {
       .then(function (readyVersion) {
         var percent = 100 / waitForCount * (waitForCount - pendingVersions.length);
 
-        stream.queue({status: 'ready', version: readyVersion, metadata: completedEvent.metadata, percent: percent});
+        stream.push({status: 'ready', version: readyVersion, metadata: completedEvent.metadata, percent: percent});
 
         if (pendingVersions.length == 0) {
           return readyVersion;

@@ -3,7 +3,7 @@
 var assert = require('assert');
 var TiramisuClient = require('../../clients/tiramisu');
 var Connector = require('../../connector');
-var through = require('through');
+var through = require('through2');
 var concat = require('concat-stream');
 
 function step(status, percent, metadata) {
@@ -93,13 +93,13 @@ describe('TiramisuClient', function () {
     });
 
     it('Waits for a version match specified by the given matchFn', function (done) {
-      var uploadProgress = through();
+      var uploadProgress = through.obj();
 
       uploadProgress
         .pipe(client.waitFor(function (version) {
           return version.width >= 100;
         }))
-        .pipe(client._normalizeProgress())
+        .pipe(TiramisuClient.normalizeProgress())
         .pipe(concat(function (result) {
           var lastReadyVersion = result.slice(-2)[0];
           assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event');
@@ -115,13 +115,13 @@ describe('TiramisuClient', function () {
     });
 
     it('Falls back to the largest possible image if there are no version match', function (done) {
-      var uploadProgress = through();
+      var uploadProgress = through.obj();
 
       uploadProgress
         .pipe(client.waitFor(function (version) {
           return version.width > 1300;
         }))
-        .pipe(client._normalizeProgress())
+        .pipe(TiramisuClient.normalizeProgress())
         .pipe(concat(function (result) {
           var lastReadyVersion = result.slice(-2)[0];
           assert.equal(lastReadyVersion.status, 'ready', 'Unexpected status of second last progress event');
