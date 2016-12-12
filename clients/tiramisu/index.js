@@ -4,6 +4,7 @@ var Client = require('../../client');
 var inherits = require('inherits');
 var through = require('through');
 var split = require('split');
+var pumpify = require('pumpify');
 
 function filter(test) {
   return through(function (chunk) {
@@ -53,14 +54,18 @@ TiramisuClient.prototype.uploadImage = function (endpoint, file, options) {
   if (options && options.forceJPEG === false) {
     uploadOpts.queryString = {force_jpeg: false};
   }
-  return this.uploadFile(endpoint, file, uploadOpts)
-    .pipe(this.waitFor(options.waitFor))
-    .pipe(this._normalizeProgress());
+  return pumpify(
+    this.upload(endpoint, file, uploadOpts),
+    this.waitFor(options.waitFor),
+    this._normalizeProgress()
+  );
 };
 
 TiramisuClient.prototype.uploadFile = function (endpoint, file, options) {
-  return this.upload(endpoint, file, options)
-    .pipe(this._normalizeProgress());
+  return pumpify(
+    this.upload(endpoint, file, options),
+    this._normalizeProgress()
+  );
 };
 
 TiramisuClient.prototype.upload = function (endpoint, file, options) {
@@ -77,13 +82,14 @@ TiramisuClient.prototype.upload = function (endpoint, file, options) {
 
   req.end(formData);
 
-  return req
-    .pipe(split('\n'))
-    .pipe(filter(function (line) {
+  return pumpify(
+    req,
+    split('\n'),
+    filter(function (line) {
       return line && line.trim().length > 0;
-    }))
-    .pipe(parseJSON());
-
+    }),
+    parseJSON()
+  );
 };
 
 TiramisuClient.prototype._normalizeProgress = function _normalizeProgress() {
