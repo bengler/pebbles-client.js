@@ -8,7 +8,20 @@ module.exports = {
   parseJSON,
   checkError,
   normalizeProgress,
-  waitForVersion
+  waitForVersion,
+  findIndex
+}
+
+function findIndex(array, predicateFn) {
+  let foundIndex = -1
+  array.some((item, index) => {
+    const found = predicateFn(item, index, array)
+    if (found) {
+      foundIndex = index
+    }
+    return found
+  })
+  return foundIndex
 }
 
 function filter(test) {

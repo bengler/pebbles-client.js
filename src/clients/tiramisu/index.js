@@ -4,7 +4,7 @@ const extend = require('xtend')
 const split = require('split2')
 const pumpify = require('pumpify')
 
-const {normalizeProgress, parseJSON, checkError, waitForVersion, filter} = require('./utils')
+const {normalizeProgress, parseJSON, checkError, waitForVersion, filter, findIndex} = require('./utils')
 
 class TiramisuClient extends Client {
   uploadImage(endpoint, file, options) {
@@ -72,7 +72,7 @@ class TiramisuClient extends Client {
 
       pendingVersions = completedEvent.metadata.versions.slice()
       if (versionMatchFn) {
-        const matchingVersionIndex = pendingVersions.findIndex(versionMatchFn)
+        const matchingVersionIndex = findIndex(pendingVersions, versionMatchFn)
         if (matchingVersionIndex > -1) {
           pendingVersions = pendingVersions.slice(0, matchingVersionIndex + 1)
         }
