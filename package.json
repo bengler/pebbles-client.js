@@ -12,8 +12,7 @@
   },
   "scripts": {
     "prepublish": "npm run compile",
-    "postpublish": "rimraf lib",
-    "compile": "babel src --out-dir lib",
+    "compile": "babel src --out-dir dist",
     "compile:watch": "npm run compile -- --watch",
     "mocha": "mocha --compilers js:babel-register",
     "lint": "eslint .",

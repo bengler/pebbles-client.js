@@ -1,1 +1,1 @@
-module.exports = require('./lib/connector')
+module.exports = require('./dist/connector')

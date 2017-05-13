@@ -1,1 +1,1 @@
-module.exports = require('./lib/service')
+module.exports = require('./dist/service')

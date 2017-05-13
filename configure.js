@@ -1,1 +1,1 @@
-module.exports = require('./lib/configure')
+module.exports = require('./dist/configure')
